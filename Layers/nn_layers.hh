@@ -1,4 +1,4 @@
-#praga once
+#pragma once
 #include <iostream>
 #include "../nn_utils/matrix.hh"
 
