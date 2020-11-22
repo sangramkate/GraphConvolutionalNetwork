@@ -19,9 +19,9 @@ int main() {
 
 	NeuralNetwork nn;
 	nn.addLayer(new LinearLayer("linear1", Shape(_,_)));
-	nn.addLayer(new activation("relu2"));
+	nn.addLayer(new ReLUActivation("relu2"));
 	nn.addLayer(new LinearLayer("linear2", Shape(_,_)));
-	nn.addLayer(new activation("relu2"));
+	nn.addLayer(new ReLUActivation("relu2"));
 
 	// network training
 	Matrix Y;
