@@ -70,7 +70,7 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp include/%.h
 	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # Compile CUDA source files to object files:
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cu $(INC_DIR)/%.cuh
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cu $(INC_DIR)/%.hh
 	$(NVCC) $(NVCC_FLAGS) -c $< -o $@ $(NVCC_LIBS)
 
 # Clean objects in object directory.
