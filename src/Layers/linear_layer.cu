@@ -3,8 +3,8 @@
 #include <iostream>
 #include <random>
 
-#include "linear_layer.hh"
-#include "../nn_utils/nn_exception.hh"
+#include "include/linear_layer.hh"
+#include "src/nn_utils/nn_exception.hh"
 
 __global__ void linearLayerForward( float* W, float* A, float* Z, float* b,
                                                                            int W_x_dim, int W_y_dim,
