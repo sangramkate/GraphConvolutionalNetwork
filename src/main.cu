@@ -1,12 +1,12 @@
 #include <iostream>
 #include <time.h>
 
-#include "neural_network.hh"
-#include "layers/linear_layer.hh"
-#include "layers/activation.hh"
-#include "layers/nodeaggregator.hh"
-#include "nn_utils/nn_exception.hh"
-#include "nn_utils/cost.hh"
+#include "include/neural_network.hh"
+#include "include/linear_layer.hh"
+#include "include/activation.hh"
+#include "include/nodeaggregator.hh"
+#include "include/nn_exception.hh"
+#include "include/cost.hh"
 
 float computeAccuracy(const Matrix& predictions, const Matrix& targets);
 
