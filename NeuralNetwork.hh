@@ -7,7 +7,7 @@
 class NeuralNetwork {
 private:
 	std::vector<NNLayer*> layers;
-	BCECost bce_cost;
+	CostFunction bce_cost;
 
 	Matrix Y;
 	Matrix dY;
