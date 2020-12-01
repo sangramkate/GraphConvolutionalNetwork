@@ -1,5 +1,5 @@
-#include "include/neural_network.hh"
-#include "include/nn_exception.hh"
+#include "NeuralNetwork.hh"
+#include "nn_exception.hh"
 
 NeuralNetwork::NeuralNetwork(float learning_rate) :
 	learning_rate(learning_rate)

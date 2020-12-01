@@ -1,12 +1,12 @@
 #include <iostream>
 #include <time.h>
 
-#include "include/neural_network.hh"
-#include "include/linear_layer.hh"
-#include "include/activation.hh"
-#include "include/nodeaggregator.hh"
-#include "include/nn_exception.hh"
-#include "include/cost.hh"
+#include "NeuralNetwork.hh"
+#include "linear_layer.hh"
+#include "activation.hh"
+#include "nodeaggregator.hh"
+#include "nn_exception.hh"
+#include "costfunction.hh"
 
 float computeAccuracy(const Matrix& predictions, const Matrix& targets);
 
@@ -14,13 +14,13 @@ int main() {
 
 	srand( time(NULL) );
 
-	#CoordinatesDataset dataset(100, 21);
-	BCECost bce_cost;
+	//CoordinatesDataset dataset(100, 21);
+	CostFunction bce_cost;
 
 	NeuralNetwork nn;
-	nn.addLayer(new LinearLayer("linear1", Shape(_,_)));
+	nn.addLayer(new LinearLayer("linear1", Shape(100,20)));
 	nn.addLayer(new ReLUActivation("relu2"));
-	nn.addLayer(new LinearLayer("linear2", Shape(_,_)));
+	nn.addLayer(new LinearLayer("linear2", Shape(100,20)));
 	nn.addLayer(new ReLUActivation("relu2"));
 
 	// network training
@@ -28,26 +28,25 @@ int main() {
 	for (int epoch = 0; epoch < 1001; epoch++) {
 		float cost = 0.0;
 
-		for (int batch = 0; batch < dataset.getNumOfBatches() - 1; batch++) {
-			Y = nn.forward(dataset.getBatches().at(batch));
-			nn.backprop(Y, dataset.getTargets().at(batch));
-			cost += bce_cost.cost(Y, dataset.getTargets().at(batch));
+		for (int batch = 0; batch < 100 - 1; batch++) {
+			Y = nn.forward();
+			nn.backprop(Y,);
+			cost += bce_cost.cost(Y,);
 		}
 
 		if (epoch % 100 == 0) {
 			std::cout 	<< "Epoch: " << epoch
-						<< ", Cost: " << cost / dataset.getNumOfBatches()
+						<< ", Cost: " << cost / 100
 						<< std::endl;
 		}
 	}
 
 	// compute accuracy
-	Y = nn.forward(dataset.getBatches().at(dataset.getNumOfBatches() - 1));
+	Y = nn.forward();
 	Y.copyDeviceToHost();
 
-	float accuracy = computeAccuracy(
-			Y, dataset.getTargets().at(dataset.getNumOfBatches() - 1));
-	std::cout 	<< "Accuracy: " << accuracy << std::endl;
+	float accuracy = computeAccuracy(Y,);
+	std::cout << "Accuracy: " << accuracy << std::endl;
 
 	return 0;
 }

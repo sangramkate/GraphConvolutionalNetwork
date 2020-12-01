@@ -4,7 +4,7 @@
 
 class Matrix{
 private:
-    bool device _allocated;
+    bool device_allocated;
     bool host_allocated;
     
     void allocateCudaMemory();
@@ -24,5 +24,5 @@ public:
     void copyDeviceToHost();
     
     float& operator[](const int index);
-    const float& operator(const int index) const;
+    const float& operator[](const int index) const;
 };

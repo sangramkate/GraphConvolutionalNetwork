@@ -23,4 +23,4 @@ public:
             throw NNException(exception_msg);
         }
     }
-}
+};

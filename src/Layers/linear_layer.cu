@@ -3,8 +3,8 @@
 #include <iostream>
 #include <random>
 
-#include "include/linear_layer.hh"
-#include "src/nn_utils/nn_exception.hh"
+#include "linear_layer.hh"
+#include "nn_exception.hh"
 
 __global__ void linearLayerForward( float* W, float* A, float* Z, float* b,
                                                                            int W_x_dim, int W_y_dim,
@@ -19,7 +19,7 @@ __global__ void linearLayerForward( float* W, float* A, float* Z, float* b,
   
     if( row < Z_y_dim && col << Z_x_dim){
        for(int i=0; i< W_x_dim; i=i+1){
-           Z_value += W[row * W_x_dim + i] * A[i * A_x_dim + col] 
+           Z_value += W[row * W_x_dim + i] * A[i * A_x_dim + col]; 
        }
        Z[row * Z_x_dim + col] = Z_value + b[row];
     }
@@ -83,21 +83,21 @@ LinearLayer::LinearLayer(std::string name, Shape W_shape):
 {
     this->name = name;
     b.allocateMemory();
-    w.allocateMemory();
+    W.allocateMemory();
     initializeBiasWithZeros();
     initializeWeightsRandomly();
 }
 
 LinearLayer::~LinearLayer()
-{ }
+{ };
 
 void LinearLayer::initializeWeightsRandomly(){
-    std::default_ranodm_engine generator;
+    std::default_random_engine generator;
     std::normal_distribution<float> normal_distribution(0.0, 1.0);
 	
     for(int x = 0; x < W.shape.x;x++){
 	for(int y =0; y< W.shape.y;y++){
-	     W[y* W.shape.x * + x] = normal_distribution(generator) * weight_initi_threshold;	
+	     W[y* W.shape.x * + x] = normal_distribution(generator) * weights_init_threshold;	
 	}
     }
     W.copyHostToDevice();
@@ -114,10 +114,10 @@ void LinearLayer::initializeBiasWithZeros() {
 Matrix& LinearLayer::forward(Matrix& A){
     assert(W.shape.x = A.shape.y);
     this->A = A;
-    Shape Z_shape(A.shape.x,W.shape.y)
+    Shape Z_shape(A.shape.x,W.shape.y);
     Z.allocateMemoryIfNotAllocated(Z_shape);
-    ComputeAndStoreLayerOutoput(A);
-    NNException::throwIfDeviceErrorsOccurred("Cannot perform Linear Layer forward propagation");
+    computeAndStoreLayerOutput(A);
+    NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
     
     return Z;
 	
@@ -138,13 +138,13 @@ Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 	dA.allocateMemoryIfNotAllocated(A.shape);
 
 	computeAndStoreBackpropError(dZ);
-	NNException::throwIfDeviceErrorsOccurred("Cannot perform back propagation.");
+	NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
 
 	updateBias(dZ, learning_rate);
-	NNException::throwIfDeviceErrorsOccurred("Cannot perform bias update.");
+	NNException::throwIfDeviceErrorOccurred("Cannot perform bias update.");
 
 	updateWeights(dZ, learning_rate);
-	NNException::throwIfDeviceErrorsOccurred("Cannot perform weights update.");
+	NNException::throwIfDeviceErrorOccurred("Cannot perform weights update.");
 
 	return dA;
 }

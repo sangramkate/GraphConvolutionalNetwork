@@ -3,7 +3,7 @@
 
 class LinearLayer: public NNLayer{
 private:
-    const float weihts_init_threshold = 0.01;
+    const float weights_init_threshold = 0.01;
     
     Matrix W;
     Matrix b;
@@ -15,14 +15,14 @@ private:
     void initializeBiasWithZeros();
     void initializeWeightsRandomly();
     
-    void computeAndStoreBackPropError(Matrix& dZ);
+    void computeAndStoreBackpropError(Matrix& dZ);
     void computeAndStoreLayerOutput(Matrix& A);
     void updateWeights(Matrix& dz, float learining_rate);
-    void updateBias(Marix& dZ, float learning_rate);
+    void updateBias(Matrix& dZ, float learning_rate);
     
 public:
     LinearLayer(std::string name, Shape W_shape);
-    !LinearLayer();
+    ~LinearLayer();
     
     Matrix& forward(Matrix& A);
     Matrix& backprop(Matrix& dZ, float learning_rate = 0.01);
@@ -33,4 +33,4 @@ public:
     Matrix getWeightsMatrix() const;
     Matrix getBiasVector() const;
     
-}
+};

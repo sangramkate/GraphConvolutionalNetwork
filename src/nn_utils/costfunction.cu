@@ -40,7 +40,7 @@ float CostFunction::cost(Matrix predictions, Matrix target) {
 														  target.data_device.get(),
 														  predictions.shape.x, cost);
 	cudaDeviceSynchronize();
-	NNException::throwIfDeviceErrorsOccurred("Cannot compute binary cross entropy cost.");
+	NNException::throwIfDeviceErrorOccurred("Cannot compute binary cross entropy cost.");
 
 	float cost_value = *cost;
 	cudaFree(cost);
@@ -57,7 +57,7 @@ Matrix CostFunction::dCost(Matrix predictions, Matrix target, Matrix dY) {
 														   target.data_device.get(),
 														   dY.data_device.get(),
 														   predictions.shape.x);
-	NNException::throwIfDeviceErrorsOccurred("Cannot compute derivative for binary cross entropy.");
+	NNException::throwIfDeviceErrorOccurred("Cannot compute derivative for binary cross entropy.");
 
 	return dY;
 }

@@ -41,7 +41,7 @@ SRC_DIR = src
 OBJ_DIR = bin
 
 # Include header file diretory:
-INC_DIR = include
+INC_DIR = include/
 INC_FILES = $(INC_DIR)/activation.hh,$(INC_DIR)/costfunction.hh,$(INC_DIR)/linear_layer.hh,$(INC_DIR)/matrix.hh,$(INC_DIR)/NeuralNetwork.hh,$(INC_DIR)/nn_exception.hh,$(INC_DIR)/nn_layers.hh,$(INC_DIR)/nodeaggregator.hh,$(INC_DIR)/shape.hh
 ##########################################################
 
@@ -71,13 +71,20 @@ OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/cuda_kernel.o
 #  Compile C++ source files to object files:
 # $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cu ${INC_DIR}/%.h ${SRC_DIR}/layers/%.cu ${SRC_DIR}/nn_utils/%.cu
 #	$(CC) $(CC_FLAGS) -c $< -o $@
-
 # Compile CUDA source files to object files:
-makeobj: $(SRC_DIR)/Layers/*.cu $(SRC_DIR)/nn_utils/*.cu $(SRC_DIR)/*.cu
-	$(NVCC) $(NVCC_FLAGS) -include $(INC_FILES) -c $< -o $(OBJ_DIR)/new.o 
 
-Sangram:
-	echo " this works"
+clean:
+	$(RM) -rf bin
+	mkdir bin
 
-#clean:
-#	$(RM) bin/* *.o $(EXE)
+makeobj:
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/activation.cu -o $(OBJ_DIR)/activation.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/linear_layer.cu -o $(OBJ_DIR)/linear_layer.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/nodeaggregator.cu -o $(OBJ_DIR)/nodeaggregator.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/costfunction.cu -o $(OBJ_DIR)/costfunction.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/matrix.cu -o $(OBJ_DIR)/shape.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/shape.cu -o $(OBJ_DIR)/shape.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/NeuralNetwork.cu -o $(OBJ_DIR)/NeuralNetwork.o 
+#	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/main.cu -o $(OBJ_DIR)/main.o 
+
+all: clean makeobj
