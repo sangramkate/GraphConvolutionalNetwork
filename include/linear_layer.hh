@@ -1,5 +1,5 @@
 #pragma once
-#include "nn_layer.hh"
+#include "nn_layers.hh"
 
 class LinearLayer: public NNLayer{
 private:

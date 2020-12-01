@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nn_layer.hh"
+#include "nn_layers.hh"
 
 class ReLUActivation : public NNLayer {
 private:

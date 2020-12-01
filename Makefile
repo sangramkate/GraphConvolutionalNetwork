@@ -42,7 +42,7 @@ OBJ_DIR = bin
 
 # Include header file diretory:
 INC_DIR = include
-
+INC_FILES = $(INC_DIR)/activation.hh,$(INC_DIR)/costfunction.hh,$(INC_DIR)/linear_layer.hh,$(INC_DIR)/matrix.hh,$(INC_DIR)/NeuralNetwork.hh,$(INC_DIR)/nn_exception.hh,$(INC_DIR)/nn_layers.hh,$(INC_DIR)/nodeaggregator.hh,$(INC_DIR)/shape.hh
 ##########################################################
 
 ## Make variables ##
@@ -53,26 +53,31 @@ EXE = run_test
 # Object files:
 OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/cuda_kernel.o
 
+.SUFFIXES: .cu .o
 ##########################################################
 
 ## Compile ##
 
+# Clean objects in object directory.
+
 # Link c++ and CUDA compiled object files to target executable:
-$(EXE) : $(OBJS)
-	$(CC) $(CC_FLAGS) $(OBJS) -o $@ $(CUDA_INC_DIR) $(CUDA_LIB_DIR) $(CUDA_LINK_LIBS)
+#$(EXE) : $(OBJ_DIR)/%.o
+#	$(CC) $(CC_FLAGS) $(OBJS) -o $@ $(CUDA_LINK_LIBS)
 
-# Compile main .cpp file to object files:
-$(OBJ_DIR)/%.o : %.cpp
-	$(CC) $(CC_FLAGS) -c $< -o $@
+#  Compile main .cpp file to object files:
+# $(OBJ_DIR)/%.o : %.cpp
+#	$(CC) $(CC_FLAGS) -c $< -o $@
 
-# Compile C++ source files to object files:
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp include/%.h
-	$(CC) $(CC_FLAGS) -c $< -o $@
+#  Compile C++ source files to object files:
+# $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cu ${INC_DIR}/%.h ${SRC_DIR}/layers/%.cu ${SRC_DIR}/nn_utils/%.cu
+#	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # Compile CUDA source files to object files:
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cu $(INC_DIR)/%.hh
-	$(NVCC) $(NVCC_FLAGS) -c $< -o $@ $(NVCC_LIBS)
+makeobj: $(SRC_DIR)/Layers/*.cu $(SRC_DIR)/nn_utils/*.cu $(SRC_DIR)/*.cu
+	$(NVCC) $(NVCC_FLAGS) -include $(INC_FILES) -c $< -o $(OBJ_DIR)/new.o 
 
-# Clean objects in object directory.
-clean:
-	$(RM) bin/* *.o $(EXE
+Sangram:
+	echo " this works"
+
+#clean:
+#	$(RM) bin/* *.o $(EXE)
