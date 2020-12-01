@@ -25,7 +25,7 @@ NVCC_LIBS=
 CUDA_LIB_DIR= -L$(CUDA_ROOT_DIR)/lib64
 # CUDA include directory:
 
-CUDA_INC_DIR= -I$(CUDA_ROOT_DIR)/include
+CUDA_INC_DIR= -I$(CUDA_ROOT_DIR)/include 
 # CUDA linking libraries:
 
 CUDA_LINK_LIBS= -lcudart
@@ -43,6 +43,11 @@ OBJ_DIR = bin
 # Include header file diretory:
 INC_DIR = include/
 INC_FILES = $(INC_DIR)/activation.hh,$(INC_DIR)/costfunction.hh,$(INC_DIR)/linear_layer.hh,$(INC_DIR)/matrix.hh,$(INC_DIR)/NeuralNetwork.hh,$(INC_DIR)/nn_exception.hh,$(INC_DIR)/nn_layers.hh,$(INC_DIR)/nodeaggregator.hh,$(INC_DIR)/shape.hh
+##########################################################
+
+INC_DIR_CUB = include/Galois/cub
+INC_DIR_MGPU = include/Galois/src
+INC_DIR2 = include/Galois/include
 ##########################################################
 
 ## Make variables ##
@@ -80,7 +85,7 @@ clean:
 makeobj:
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/activation.cu -o $(OBJ_DIR)/activation.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/linear_layer.cu -o $(OBJ_DIR)/linear_layer.o 
-	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/nodeaggregator.cu -o $(OBJ_DIR)/nodeaggregator.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11 -lcusparse -arch=compute_61 -I $(INC_DIR) -I $(INC_DIR_CUB) -I $(INC_DIR_MGPU) -I $(INC_DIR2)  -c src/Layers/nodeaggregator.cu --extended-lambda -o $(OBJ_DIR)/nodeaggregator.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/costfunction.cu -o $(OBJ_DIR)/costfunction.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/matrix.cu -o $(OBJ_DIR)/shape.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/shape.cu -o $(OBJ_DIR)/shape.o 

@@ -1,17 +1,26 @@
 #pragma once
+#include "nn_layers.hh"
 
-#include "nn_layer.hh"
-
-class ReLUActivation : public NNLayer {
+class NodeAggregator: public NNLayer{
 private:
-	Matrix A;
-	Matrix Z;
-	Matrix dZ;
-
+    Matrix Z;
+    Matrix A;
+    Matrix dZ;
+    Matrix dA;
+    float* nnz_data;
+    int* row;
+    int* col;
+    int nodes;
+    int nnz;
+    
 public:
-	NodeAgregator(std::string name,Shape W_shape, float* nnz_data, int* row, int*col, int feature_size);
-	~NodeAggregator();
-
-	Matrix& Forward((Matrix& A, float* nnz_data, int* row, int* col));
-	Matrix& Backprop(Matrix& dZ, float* nnz_data, int* row, int* col);
+    NodeAggregator(std::string name, float* nnz_data, int* row, int*col, int nodes, int nnz);
+    ~NodeAggregator();
+    
+    Matrix& Forward(Matrix& A);
+    Matrix& BackProp(Matrix& dZ);
+   
+//    int getXdim() const;
+//    int getYdim() const;
+    
 };

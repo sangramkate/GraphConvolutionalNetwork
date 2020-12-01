@@ -17,9 +17,45 @@ int main() {
 	//CoordinatesDataset dataset(100, 21);
 	CostFunction bce_cost;
 
+//Code for extracting data from dataset files starts here
+        CSRGraph graph;
+        char gr_file[]="cora.gr";
+        char binFile[]="cora-feat.bin";
+        int *nnodes,*nedges;
+        int feature_size = 1433;
+        graph.read(gr_file,nnodes,nedges);
+        int* d_row_start;
+        int* d_edge_dst;
+        float* d_edge_data;
+        cudaError_t alloc;
+        alloc = cudaMalloc(&d_row_start,(*nnodes+1) * sizeof(*d_row_start));
+        if(alloc != cudaSuccess) {
+            printf("malloc for row info failed\n");
+        }
+        alloc = cudaMalloc(&d_edge_dst,(*nedges) * sizeof(*d_edge_dst));
+        if(alloc != cudaSuccess) {
+            printf("malloc for col info failed\n");
+        }
+        float* d_B;
+        alloc = cudaMalloc(&d_B,n * m * sizeof(float));
+        if(alloc != cudaSuccess) {
+            printf("cudaMalloc failed for features matrix\n");
+        }
+        alloc = cudaMalloc(&d_edge_data,nnz * sizeof(*d_edge_data));
+        if(alloc != cudaSuccess) {
+            printf("malloc failed \n");
+        }
+        alloc = cudaMemset(d_edge_data, 1, *nedges*sizeof(float));
+        if(alloc != cudaSuccess) {
+            printf("memset for edge data failed \n");
+        }
+//Filling up the sparse matrix info
+        graph.readFromGR(gr_file , binFile , d_row_index, d_col_index , d_B);
 	NeuralNetwork nn;
+	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_index, d_col_index, n, nnz));
 	nn.addLayer(new LinearLayer("linear1", Shape(100,20)));
 	nn.addLayer(new ReLUActivation("relu2"));
+	nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_index, d_col_index, n, nnz));
 	nn.addLayer(new LinearLayer("linear2", Shape(100,20)));
 	nn.addLayer(new ReLUActivation("relu2"));
 
