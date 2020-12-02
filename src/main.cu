@@ -7,7 +7,7 @@
 #include "nodeaggregator.hh"
 #include "nn_exception.hh"
 #include "costfunction.hh"
-
+#include "csr_graph.h"
 float computeAccuracy(const Matrix& predictions, const Matrix& targets);
 
 int main() {
@@ -21,13 +21,14 @@ int main() {
         CSRGraph graph;
         char gr_file[]="cora.gr";
         char binFile[]="cora-feat.bin";
-        int *nnodes,*nedges;
+        int *nnodes = 0,*nedges = 0;
         int feature_size = 1433;
         graph.read(gr_file,nnodes,nedges);
         int* d_row_start;
         int* d_edge_dst;
         float* d_edge_data;
         cudaError_t alloc;
+        int nnz = *nedges;
         alloc = cudaMalloc(&d_row_start,(*nnodes+1) * sizeof(*d_row_start));
         if(alloc != cudaSuccess) {
             printf("malloc for row info failed\n");
@@ -37,7 +38,7 @@ int main() {
             printf("malloc for col info failed\n");
         }
         float* d_B;
-        alloc = cudaMalloc(&d_B,n * m * sizeof(float));
+        alloc = cudaMalloc(&d_B, (*nnodes) * feature_size * sizeof(float));
         if(alloc != cudaSuccess) {
             printf("cudaMalloc failed for features matrix\n");
         }
@@ -50,14 +51,17 @@ int main() {
             printf("memset for edge data failed \n");
         }
 //Filling up the sparse matrix info
-        graph.readFromGR(gr_file , binFile , d_row_index, d_col_index , d_B);
+        graph.readFromGR(gr_file , binFile , d_row_start, d_edge_dst , d_B, feature_size);
+
 	NeuralNetwork nn;
-	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_index, d_col_index, n, nnz));
+
+	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, *nnodes, nnz));
 	nn.addLayer(new LinearLayer("linear1", Shape(100,20)));
 	nn.addLayer(new ReLUActivation("relu2"));
-	nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_index, d_col_index, n, nnz));
+	nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, *nnodes, nnz));
 	nn.addLayer(new LinearLayer("linear2", Shape(100,20)));
 	nn.addLayer(new ReLUActivation("relu2"));
+        nn.addLayer(new SoftMax("softmax"));
 
 	// network training
 	Matrix Y;
@@ -65,7 +69,7 @@ int main() {
 		float cost = 0.0;
 
 		for (int batch = 0; batch < 100 - 1; batch++) {
-			Y = nn.forward();
+			Y = nn.forward(Y);
 			nn.backprop(Y,);
 			cost += bce_cost.cost(Y,);
 		}
