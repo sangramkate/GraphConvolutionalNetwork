@@ -79,16 +79,27 @@ int main() {
 	if(alloc != cudaSuccess) {
     	printf("Feature matrix memcpy failed\n");
 	} 
-        Data dataset(100,2708,feature_size,label_size,label,h_B);
-	NeuralNetwork nn;
-
+	std::cout << "Dataset captured!\n";
+        Data dataset(2708,100,feature_size,label_size,label,h_B);
+	std::cout << "Dataset captured!\n";
+        NeuralNetwork nn;
+        std::cout << "Instance of Neural Network\n";
 	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
-	nn.addLayer(new LinearLayer("linear1", Shape(feature_size,100)));
+        std::cout << "Added Nodeaggregator 1 layer\n";
+	nn.addLayer(new LinearLayer("linear1", Shape(100,feature_size)));
+        std::cout << "Added Linear layer 1\n";
 	nn.addLayer(new ReLUActivation("relu2"));
+        std::cout << "Added relu layer 1\n";
 	nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
-	nn.addLayer(new LinearLayer("linear2", Shape(100,label_size)));
+        std::cout << "Added Nodeaggregator layer 2\n";
+	nn.addLayer(new LinearLayer("linear2", Shape(label_size,100)));
+        std::cout << "Added Linear layer 2\n";
 	nn.addLayer(new ReLUActivation("relu2"));
+        std::cout << "Added Relu layer 2\n";
         nn.addLayer(new SoftMax("softmax"));
+        std::cout << "Added softmax layer \n";
+
+        std::cout << "Instance of Neural Network complete\n";
 	// network training
 	Matrix Y;
 	for (int epoch = 0; epoch < 1001; epoch++) {

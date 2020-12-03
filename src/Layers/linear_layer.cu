@@ -82,10 +82,15 @@ LinearLayer::LinearLayer(std::string name, Shape W_shape):
     W(W_shape),b(W_shape.y,1)
 {
     this->name = name;
+    std::cout << "updated layer name\n";
     b.allocateMemory();
+    std::cout << "b allocated\n";
     W.allocateMemory();
+    std::cout << "w allocated\n";
     initializeBiasWithZeros();
+    std::cout << "bias initialized\n";
     initializeWeightsRandomly();
+    std::cout << "weights initialized\n";
 }
 
 LinearLayer::~LinearLayer()
@@ -94,10 +99,12 @@ LinearLayer::~LinearLayer()
 void LinearLayer::initializeWeightsRandomly(){
     std::default_random_engine generator;
     std::normal_distribution<float> normal_distribution(0.0, 1.0);
-	
-    for(int x = 0; x < W.shape.x;x++){
-	for(int y =0; y< W.shape.y;y++){
-	     W[y* W.shape.x * + x] = normal_distribution(generator) * weights_init_threshold;	
+    std::cout << "W.shape.x:" << W.shape.x <<"\n";	
+    std::cout << "W.shape.y:" << W.shape.y <<"\n";	
+    for(int x = 0; x < W.shape.x; x++){
+	for(int y =0; y< W.shape.y; y++){
+             std::cout <<" x y :" << x << " " << y << " Acccess pattern :" <<  y* W.shape.x * + x<< "\n";
+	     W[y* W.shape.x + x] = normal_distribution(generator) * weights_init_threshold;	
 	}
     }
     W.copyHostToDevice();
@@ -117,6 +124,7 @@ Matrix& LinearLayer::forward(Matrix& A){
     Shape Z_shape(A.shape.x,W.shape.y);
     Z.allocateMemoryIfNotAllocated(Z_shape);
     computeAndStoreLayerOutput(A);
+    std::cout << "Linear Layer forward\n";
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
     
     return Z;
@@ -137,6 +145,7 @@ linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device.get(),
 Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 	dA.allocateMemoryIfNotAllocated(A.shape);
 
+        std::cout << "Linear Layer forward\n";
 	computeAndStoreBackpropError(dZ);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
 

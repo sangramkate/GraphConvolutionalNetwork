@@ -64,6 +64,7 @@ Matrix& SoftMax::forward(Matrix& A){
     this->A = A;
     Shape Z_shape(A.shape.x,A.shape.y);
     Z.allocateMemoryIfNotAllocated(Z_shape);
+    std::cout<<"softmax forward\n";
     LayerOutput(A);
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
     return Z;
@@ -76,6 +77,7 @@ void SoftMax::LayerOutput(Matrix& A) {
 
 Matrix& SoftMax::backprop(Matrix& dZ, float learning_rate) {
     dA.allocateMemoryIfNotAllocated(A.shape);
+    std::cout<<"softmax backward\n";
     BackpropError(dZ);
     NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
     return dA;

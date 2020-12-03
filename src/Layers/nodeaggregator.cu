@@ -9,6 +9,7 @@
 Matrix& NodeAggregator::forward(Matrix& A){
 this->A = A;
 Z.allocateMemoryIfNotAllocated(A.shape);
+std::cout<<"Nodeagg forward\n";
 SpMM(nnz_data, row, col, A.data_device.get(), Z.data_device.get(), A.shape.x, nodes, nnz);
 return Z;
 }
@@ -16,6 +17,7 @@ return Z;
 Matrix& NodeAggregator::backprop(Matrix& dZ, float learning_rate) {
 this->dZ = dZ;
 dA.allocateMemoryIfNotAllocated(dZ.shape);
+std::cout<<"Nodeagg backward\n";
 SpMM(nnz_data, row, col, dZ.data_device.get(), dA.data_device.get(), A.shape.x, nodes, nnz);
 return dA;
 }

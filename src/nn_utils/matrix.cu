@@ -24,9 +24,8 @@ void Matrix::allocateCudaMemory(){
 
 void Matrix::allocateHostMemory(){
     if(!host_allocated){
-        data_host = std::shared_ptr<float>(new float[shape.x * shape.y],
-                                                                         [&](float * ptr){delete[] ptr;}
-                                                                       );
+        data_host = std::shared_ptr<float>(new float[shape.x * shape.y], [&](float * ptr){delete[] ptr;});
+        host_allocated = true;
     }
 }
 
@@ -44,11 +43,18 @@ void Matrix::allocateMemoryIfNotAllocated(Shape shape){
 
 void Matrix::copyHostToDevice(){
     if(device_allocated && host_allocated){
+       // std::cout << "copying data from host to device \n";
+       //std::cout << "shape.x :" << shape.x << "\n";
+       // std::cout << "shape.y :" << shape.y << "\n";
+     
         cudaMemcpy(data_device.get(), data_host.get(), shape.x * shape.y * sizeof(float),cudaMemcpyHostToDevice);
         NNException::throwIfDeviceErrorOccurred("Cannot copyhost data to CUDA device");
     }
     else
     {
+     //   std::cout << "device_allocated:" << device_allocated << "\n";
+     //   std::cout << "host_allocated:" << host_allocated << "\n";
+     //   std::cout << "Host to device allocation failed!\n";
         throw NNException("Cannot copy host data to not allocated memory on device");
     }
 }
@@ -60,6 +66,7 @@ void Matrix::copyDeviceToHost(){
     }
     else
     {
+ //       std::cout << "Device to host allocation failed!\n";
         throw NNException("Cannot copy device data to not allocated memory on host");
     }
 }

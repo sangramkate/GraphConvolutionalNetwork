@@ -19,7 +19,9 @@ public:
     static void throwIfDeviceErrorOccurred( const char* exception_msg){
         cudaError_t error = cudaGetLastError();
         if(error != cudaSuccess){
+            std::cout << "-------------------------------------------\n";
             std::cerr << error << ":" << exception_msg;
+            std::cout << "-------------------------------------------\n";
             throw NNException(exception_msg);
         }
     }

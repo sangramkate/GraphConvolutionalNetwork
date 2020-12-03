@@ -1,7 +1,8 @@
 #pragma once
 
 #include "matrix.hh"
-
+#include <stdlib.h>
+#include <iostream>
 #include <vector>
 
 class Data {
