@@ -47,17 +47,21 @@ int main() {
         int* d_edge_dst;
         float* d_edge_data;
         cudaError_t alloc;
-        int nnz = *nedges;
-        alloc = cudaMalloc(&d_row_start,(*nnodes+1) * sizeof(*d_row_start));
+        int nnz = 5278;
+        alloc = cudaMalloc(&d_row_start,(2708+1) * sizeof(*d_row_start));
         if(alloc != cudaSuccess) {
             printf("malloc for row info failed\n");
         }
-        alloc = cudaMalloc(&d_edge_dst,(*nedges) * sizeof(*d_edge_dst));
+        alloc = cudaMalloc(&d_edge_dst,(5278) * sizeof(*d_edge_dst));
         if(alloc != cudaSuccess) {
             printf("malloc for col info failed\n");
         }
         float* d_B;
-        alloc = cudaMalloc(&d_B, (*nnodes) * feature_size * sizeof(float));
+
+        float* h_B = (float *)malloc((2708) * feature_size * sizeof(float));
+	if(h_B == NULL)
+	    printf("h_B malloc failed\n");
+        alloc = cudaMalloc(&d_B, (2708) * feature_size * sizeof(float));
         if(alloc != cudaSuccess) {
             printf("cudaMalloc failed for features matrix\n");
         }
@@ -65,24 +69,26 @@ int main() {
         if(alloc != cudaSuccess) {
             printf("malloc failed \n");
         }
-        alloc = cudaMemset(d_edge_data, 1, *nedges*sizeof(float));
+        alloc = cudaMemset(d_edge_data, 1, 5278*sizeof(float));
         if(alloc != cudaSuccess) {
             printf("memset for edge data failed \n");
         }
 //Filling up the sparse matrix info
         graph.readFromGR(gr_file , binFile , d_row_start, d_edge_dst , d_B, feature_size);
-        
-        Data dataset(100,*nnodes,feature_size,label_size,label,d_B);
+        alloc = cudaMemcpy(h_B, d_B, (2708 * 1433 *sizeof(float)), cudaMemcpyDeviceToHost);
+	if(alloc != cudaSuccess) {
+    	printf("Feature matrix memcpy failed\n");
+	} 
+        Data dataset(100,2708,feature_size,label_size,label,h_B);
 	NeuralNetwork nn;
 
-	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, *nnodes, nnz));
+	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
 	nn.addLayer(new LinearLayer("linear1", Shape(feature_size,100)));
 	nn.addLayer(new ReLUActivation("relu2"));
-	nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, *nnodes, nnz));
+	nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
 	nn.addLayer(new LinearLayer("linear2", Shape(100,label_size)));
 	nn.addLayer(new ReLUActivation("relu2"));
         nn.addLayer(new SoftMax("softmax"));
-
 	// network training
 	Matrix Y;
 	for (int epoch = 0; epoch < 1001; epoch++) {
