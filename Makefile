@@ -56,7 +56,7 @@ INC_DIR2 = include/Galois/include
 EXE = run_test
 
 # Object files:
-OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/cuda_kernel.o
+OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/activation.o $(OBJ_DIR)/linear_layer.o $(OBJ_DIR)/softmax.o $(OBJ_DIR)/data.o $(OBJ_DIR)/nodeaggregator.o $(OBJ_DIR)/costfunction.o $(OBJ_DIR)/shape.o $(OBJ_DIR)/matrix.o $(OBJ_DIR)/NeuralNetwork.o
 
 .SUFFIXES: .cu .o
 ##########################################################
@@ -65,9 +65,10 @@ OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/cuda_kernel.o
 
 # Clean objects in object directory.
 
-# Link c++ and CUDA compiled object files to target executable:
-#$(EXE) : $(OBJ_DIR)/%.o
-#	$(CC) $(CC_FLAGS) $(OBJS) -o $@ $(CUDA_LINK_LIBS)
+#Link c++ and CUDA compiled object files to target executable:
+
+$(EXE) : $(OBJS)
+	$(CC) $(CC_FLAGS) $(OBJS) -o $@ $(CUDA_LINK_LIBS)
 
 #  Compile main .cpp file to object files:
 # $(OBJ_DIR)/%.o : %.cpp
@@ -89,9 +90,9 @@ makeobj:
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/data.cu -o $(OBJ_DIR)/data.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11 -lcusparse -arch=compute_61 -I $(INC_DIR) -I $(INC_DIR_CUB) -I $(INC_DIR_MGPU) -I $(INC_DIR2)  -c src/Layers/nodeaggregator.cu --extended-lambda -o $(OBJ_DIR)/nodeaggregator.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/costfunction.cu -o $(OBJ_DIR)/costfunction.o 
-	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/matrix.cu -o $(OBJ_DIR)/shape.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/matrix.cu -o $(OBJ_DIR)/matrix.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/shape.cu -o $(OBJ_DIR)/shape.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/NeuralNetwork.cu -o $(OBJ_DIR)/NeuralNetwork.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -I $(INC_DIR2) -c src/main.cu -o $(OBJ_DIR)/main.o 
 
-all: clean makeobj
+all: clean makeobj ${EXE}
