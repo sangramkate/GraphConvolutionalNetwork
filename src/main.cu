@@ -1,16 +1,34 @@
 #include <iostream>
 #include <time.h>
+#include <fstream>
+#include <string>
+#include <stdlib.h>
 
 #include "NeuralNetwork.hh"
 #include "linear_layer.hh"
 #include "activation.hh"
+#include "softmax.hh"
 #include "nodeaggregator.hh"
 #include "nn_exception.hh"
 #include "costfunction.hh"
 #include "csr_graph.h"
+#include "data.hh" 
+
 float computeAccuracy(const Matrix& predictions, const Matrix& targets);
 
 int main() {
+
+        std::fstream myfile("/net/ohm/export/iss/inputs/Learning/cora-labels.txt", std::ios_base::in);
+        int* label = (int *) malloc(2708*7*sizeof(int));
+        int i = 0;
+        int a;
+        myfile >> a;
+        myfile >> a;
+        while (myfile >> a)
+        {
+            label[i] = a;
+            i++;
+        }
 
 	srand( time(NULL) );
 
@@ -23,6 +41,7 @@ int main() {
         char binFile[]="cora-feat.bin";
         int *nnodes = 0,*nedges = 0;
         int feature_size = 1433;
+        int label_size = 7;
         graph.read(gr_file,nnodes,nedges);
         int* d_row_start;
         int* d_edge_dst;
@@ -52,14 +71,15 @@ int main() {
         }
 //Filling up the sparse matrix info
         graph.readFromGR(gr_file , binFile , d_row_start, d_edge_dst , d_B, feature_size);
-
+        
+        Data dataset(100,*nnodes,feature_size,label_size,label,d_B);
 	NeuralNetwork nn;
 
 	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, *nnodes, nnz));
-	nn.addLayer(new LinearLayer("linear1", Shape(100,20)));
+	nn.addLayer(new LinearLayer("linear1", Shape(feature_size,100)));
 	nn.addLayer(new ReLUActivation("relu2"));
 	nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, *nnodes, nnz));
-	nn.addLayer(new LinearLayer("linear2", Shape(100,20)));
+	nn.addLayer(new LinearLayer("linear2", Shape(100,label_size)));
 	nn.addLayer(new ReLUActivation("relu2"));
         nn.addLayer(new SoftMax("softmax"));
 
@@ -68,10 +88,10 @@ int main() {
 	for (int epoch = 0; epoch < 1001; epoch++) {
 		float cost = 0.0;
 
-		for (int batch = 0; batch < 100 - 1; batch++) {
-			Y = nn.forward(Y);
-			nn.backprop(Y,);
-			cost += bce_cost.cost(Y,);
+		for (int batch = 0; batch < dataset.getNumOfTrainingBatches(); batch++) {
+			Y = nn.forward(dataset.getTrainingBatches().at(batch));
+			nn.backprop(Y,dataset.getTrainingTargets().at(batch));
+			cost += bce_cost.cost(Y,dataset.getTrainingTargets().at(batch));
 		}
 
 		if (epoch % 100 == 0) {
@@ -81,12 +101,17 @@ int main() {
 		}
 	}
 
+        float accuracy = 0.0f;
+        float final_accuracy = 0.0f;
+	for (int batch = 0; batch < dataset.getNumOfTestBatches(); batch++) {
+		Y = nn.forward(dataset.getTestBatches().at(batch));
+		Y.copyDeviceToHost();
+                accuracy = accuracy + computeAccuracy(Y,dataset.getTestTargets().at(batch));
+	}
+        final_accuracy = accuracy/dataset.getNumOfTestBatches();
 	// compute accuracy
-	Y = nn.forward();
-	Y.copyDeviceToHost();
 
-	float accuracy = computeAccuracy(Y,);
-	std::cout << "Accuracy: " << accuracy << std::endl;
+	std::cout << "Accuracy: " << final_accuracy << std::endl;
 
 	return 0;
 }

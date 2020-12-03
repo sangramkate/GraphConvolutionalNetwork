@@ -6,20 +6,31 @@
 
 class Data {
 private:
-	size_t batch_size;
+        int num_nodes;
+        int num_training_batches;
+        int num_test_batches;	
+        size_t batch_size;
 	size_t number_of_batches;
         size_t feature_size;
         size_t label_size;
 
-	std::vector<Matrix> batches;
-	std::vector<Matrix> targets;
+        int* label;
+        float* feature;
+
+	std::vector<Matrix> training_batches;
+	std::vector<Matrix> test_batches;
+	std::vector<Matrix> training_targets;
+	std::vector<Matrix> test_targets;
 
 public:
 
-	Data(size_t batch_size, size_t number_of_batches);
+	Data(int num_nodes,size_t batch_size, int feature_size, int label_size, int* label, float* feature);
 
-	int getNumOfBatches();
-	std::vector<Matrix>& getBatches();
-	std::vector<Matrix>& getTargets();
+	int getNumOfTrainingBatches();
+	int getNumOfTestBatches();
+	std::vector<Matrix>& getTrainingBatches();
+	std::vector<Matrix>& getTestBatches();
+	std::vector<Matrix>& getTrainingTargets();
+	std::vector<Matrix>& getTestTargets();
 
 };
