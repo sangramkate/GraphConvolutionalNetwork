@@ -15,7 +15,7 @@
 #define LSG_CSR_GRAPH
 
 #include <fstream>
-
+#include <cassert>
 // Adapted from LSG CSRGraph.h
 
 // TODO: make this template data
