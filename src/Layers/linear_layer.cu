@@ -145,7 +145,7 @@ linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device.get(),
 Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 	dA.allocateMemoryIfNotAllocated(A.shape);
 
-        std::cout << "Linear Layer forward\n";
+        std::cout << "Linear Layer backward\n";
 	computeAndStoreBackpropError(dZ);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
 

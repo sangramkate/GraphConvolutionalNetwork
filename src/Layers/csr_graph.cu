@@ -211,11 +211,11 @@ if(alloc != cudaSuccess) {
  void SpMM(float* nnz_data, int* row, int* col, float* d_B, float* d_C, int FV_size, int m, int nnz) {
 //Allocating memory for output matrix
 int n = FV_size;
-float *h_C = (float*)malloc(m * m * sizeof(float));
-if(!h_C) {
-    printf("malloc for output matrix failed\n");
-}
-cudaError_t alloc;
+//float *h_C = (float*)malloc(m * m * sizeof(float));
+//if(!h_C) {
+//    printf("malloc for output matrix failed\n");
+//}
+//cudaError_t alloc;
 
 //Prepping for Cusparse function
 cusparseHandle_t cusparse1 = NULL;
@@ -236,17 +236,17 @@ if(result != CUSPARSE_STATUS_SUCCESS) {
     printf("Cusparse failed\n");
 }
 
-alloc = cudaMemcpy(h_C, d_C, m*m*sizeof(float), cudaMemcpyDeviceToHost);
-if(alloc != cudaSuccess) {
-    printf("output matrix memcpy failed\n");
-}
-int count = 0;
-for(int i=0;i<(2708*2708);i++) {
-    if(h_C[i] != 0.0) {
-	count++;
-    }
-}
-printf("\n %d \n", count);
+//alloc = cudaMemcpy(h_C, d_C, m*m*sizeof(float), cudaMemcpyDeviceToHost);
+//if(alloc != cudaSuccess) {
+//    printf("output matrix memcpy failed\n");
+//}
+//int count = 0;
+//for(int i=0;i<(2708*2708);i++) {
+//    if(h_C[i] != 0.0) {
+//	count++;
+//    }
+//}
+//printf("\n %d \n", count);
   return;
 }
 

@@ -18,7 +18,9 @@ Matrix& NodeAggregator::backprop(Matrix& dZ, float learning_rate) {
 this->dZ = dZ;
 dA.allocateMemoryIfNotAllocated(dZ.shape);
 std::cout<<"Nodeagg backward\n";
-SpMM(nnz_data, row, col, dZ.data_device.get(), dA.data_device.get(), A.shape.x, nodes, nnz);
+std::cout<<"dZ.Shape.x:" << dZ.shape.x << "\n";
+std::cout<<"dZ.Shape.x:" << dZ.shape.y << "\n";
+SpMM(nnz_data, row, col, dZ.data_device.get(), dA.data_device.get(), dZ.shape.y, nodes, nnz);
 return dA;
 }
 
