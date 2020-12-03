@@ -68,7 +68,7 @@ OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/activation.o $(OBJ_DIR)/linear_layer.o $(OBJ
 #Link c++ and CUDA compiled object files to target executable:
 
 $(EXE) : $(OBJS)
-	$(CC) $(CC_FLAGS) $(OBJS) -o $@ $(CUDA_LINK_LIBS)
+	${NVCC} $(CC_FLAGS) $(OBJS) -lcusparse -arch=compute_61 --extended-lambda -o $@ $(CUDA_LINK_LIBS)
 
 #  Compile main .cpp file to object files:
 # $(OBJ_DIR)/%.o : %.cpp
