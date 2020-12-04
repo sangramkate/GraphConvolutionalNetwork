@@ -42,14 +42,14 @@ __global__ void SoftMaxBackprop( float* dZ, float*dA, int dZ_x_dim, int dZ_y_dim
             for(int j=0; j< dA_y_dim; j=j+1){
                 for(int i=0; i< dA_y_dim; i=i+1){
                     if(i==j){
-                        dA[i* dA_x_dim + col] += dZ[i * dA_x_dim + j] * (sum - exp(dZ[i * dA_x_dim + i]))/ (sum * sum) * exp(dZ[i * dA_x_dim + i]);
+                        dA[j* dA_y_dim + col] += dZ[j * dA_y_dim + i] * (sum - exp(dZ[j * dA_y_dim + i]))/ (sum * sum) * exp(dZ[j * dA_x_dim + i]);
                     }
                     else{
-                        dA[i* dA_x_dim + col] -= dZ[i * dA_x_dim + j] *  exp(dZ[i * dA_x_dim + i])/ (sum * sum) * exp(dZ[i * dA_x_dim + i]);
+                        dA[j* dA_x_dim + col] -= dZ[j * dA_x_dim + i] *  exp(dZ[j * dA_x_dim + i])/ (sum * sum) * exp(dZ[j * dA_x_dim + i]);
                     }
                 }
             }
-	  }
+	}
 }
 
 SoftMax::SoftMax(std::string name)

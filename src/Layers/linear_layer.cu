@@ -13,15 +13,15 @@ __global__ void linearLayerForward( float* W, float* A, float* Z, float* b,
     int col = blockIdx.x * blockDim.x + threadIdx.x;
   
     int Z_x_dim = A_x_dim;
-    int Z_y_dim = W_y_dim;
+    int Z_y_dim = W_x_dim;
   
     float Z_value = 0;
   
     if( row < Z_y_dim && col << Z_x_dim){
        for(int i=0; i< W_x_dim; i=i+1){
-           Z_value += W[row * W_x_dim + i] * A[i * A_x_dim + col]; 
+           Z_value += W[i * W_y_dim + col] * A[i + A_y_dim * row]; 
        }
-       Z[row * Z_x_dim + col] = Z_value + b[row];
+       Z[row * Z_y_dim + col] = Z_value + b[col];
     }
 }
 
@@ -32,14 +32,14 @@ __global__ void linearLayerBackprop( float* W, float* dZ, float*dA,
     int col = blockIdx.x * blockDim.x + threadIdx.x;
   
     int dA_x_dim = dZ_x_dim;
-    int dA_y_dim = W_x_dim;
+    int dA_y_dim = W_y_dim;
   
     float dA_value = 0.0f;
   	if (row < dA_y_dim && col < dA_x_dim) {
 		    for (int i = 0; i < W_y_dim; i++) {
-			      dA_value += W[i * W_x_dim + row] * dZ[i * dZ_x_dim + col];
+			      dA_value += W[i * W_y_dim + col] * dZ[ i + dZ_y_dim * row];
 		    }
-		    dA[row * dA_x_dim + col] = dA_value;
+		    dA[row * dA_y_dim + col] = dA_value;
 	  }
 }
 
@@ -52,16 +52,16 @@ __global__ void linearLayerUpdateWeights(  float* dZ, float* A, float* W,
 	int row = blockIdx.y * blockDim.y + threadIdx.y;
 
 	// A is treated as transposed
-	int W_x_dim = A_y_dim;
-	int W_y_dim = dZ_y_dim;
+	int W_x_dim = dZ_y_dim;
+	int W_y_dim = A_y_dim;
 
 	float dW_value = 0.0f;
 
 	if (row < W_y_dim && col < W_x_dim) {
 		for (int i = 0; i < dZ_x_dim; i++) {
-			dW_value += dZ[row * dZ_x_dim + i] * A[col * A_x_dim + i];
+			dW_value += dZ[i * dZ_y_dim + col ] * A[row * A_y_dim + i];
 		}
-		W[row * W_x_dim + col] = W[row * W_x_dim + col] - learning_rate * (dW_value / A_x_dim);
+		W[row * W_y_dim + col] = W[row * W_y_dim + col] - learning_rate * (dW_value / A_y_dim);
 	}
 }
 
@@ -72,9 +72,9 @@ __global__ void linearLayerUpdateBias(  float* dZ, float* b,
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < dZ_x_dim * dZ_y_dim) {
-		int dZ_x = index % dZ_x_dim;
-		int dZ_y = index / dZ_x_dim;
-		atomicAdd(&b[dZ_y], - learning_rate * (dZ[dZ_y * dZ_x_dim + dZ_x] / dZ_x_dim));
+		int dZ_x = index % dZ_y_dim;
+		int dZ_y = index / dZ_y_dim;
+		atomicAdd(&b[dZ_y], - learning_rate * (dZ[dZ_y * dZ_y_dim + dZ_x] / dZ_y_dim));
 	}
 }
 
@@ -104,7 +104,7 @@ void LinearLayer::initializeWeightsRandomly(){
     for(int x = 0; x < W.shape.x; x++){
 	for(int y =0; y< W.shape.y; y++){
              std::cout <<" x y :" << x << " " << y << " Acccess pattern :" <<  y* W.shape.x * + x<< "\n";
-	     W[y* W.shape.x + x] = normal_distribution(generator) * weights_init_threshold;	
+	     W[x* W.shape.x + y] = normal_distribution(generator) * weights_init_threshold;	
 	}
     }
     W.copyHostToDevice();
