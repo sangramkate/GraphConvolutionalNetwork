@@ -12,8 +12,8 @@ private:
     
 public:
     Shape shape;
-    std::shared_ptr<float> data_device;
-    std::shared_ptr<float> data_host;
+    float* data_device;
+    float* data_host;
     
     Matrix(size_t x_dim = 1, size_t y_dim = 1);
     Matrix(Shape shape);
@@ -22,7 +22,8 @@ public:
     void allocateMemoryIfNotAllocated(Shape shape);
     void copyHostToDevice();
     void copyDeviceToHost();
-    
+    void freeMem();    
+ 
     float& operator[](const int index);
     const float& operator[](const int index) const;
 };

@@ -67,12 +67,15 @@ Matrix& SoftMax::forward(Matrix& A){
     std::cout<<"softmax forward\n";
     LayerOutput(A);
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
+    std::cout << " softmax forward shape.x:" << Z.shape.x << "\n";
+    std::cout << " softmax forward shape.y:" << Z.shape.y << "\n";
+    A.freeMem();
     return Z;
 }
 void SoftMax::LayerOutput(Matrix& A) {
     int block_size(256);
     int num_of_blocks((Z.shape.x + block_size - 1) / block_size);
-    SoftMaxForward<<<num_of_blocks, block_size>>>( A.data_device.get(),Z.data_device.get(),A.shape.x, A.shape.y);
+    SoftMaxForward<<<num_of_blocks, block_size>>>( A.data_device,Z.data_device,A.shape.x, A.shape.y);
 }
 
 Matrix& SoftMax::backprop(Matrix& dZ, float learning_rate) {
@@ -80,11 +83,14 @@ Matrix& SoftMax::backprop(Matrix& dZ, float learning_rate) {
     std::cout<<"softmax backward\n";
     BackpropError(dZ);
     NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
+    std::cout << " softmax backward shape.x:" << dA.shape.x << "\n";
+    std::cout << " softmax backward shape.y:" << dA.shape.y << "\n";
+    dZ.freeMem();
     return dA;
 }
 
 void SoftMax::BackpropError(Matrix& dZ) {
     int block_size(256);
     int num_of_blocks ((dZ.shape.x + block_size - 1) / block_size);
-    SoftMaxBackprop<<<num_of_blocks, block_size >>> ( dZ.data_device.get(),dA.data_device.get(),dZ.shape.x, dZ.shape.y);
+    SoftMaxBackprop<<<num_of_blocks, block_size >>> ( dZ.data_device,dA.data_device,dZ.shape.x, dZ.shape.y);
 }

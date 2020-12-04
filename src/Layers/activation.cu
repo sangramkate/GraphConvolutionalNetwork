@@ -37,10 +37,12 @@ Matrix& ReLUActivation::forward(Matrix& Z) {
 	dim3 block_size(256);
 	dim3 num_of_blocks((Z.shape.y * Z.shape.x + block_size.x - 1) / block_size.x);
 
-	ReluActivationForward<<<num_of_blocks, block_size>>>(Z.data_device.get(), A.data_device.get(), Z.shape.x, Z.shape.y);
+	ReluActivationForward<<<num_of_blocks, block_size>>>(Z.data_device, A.data_device, Z.shape.x, Z.shape.y);
         std::cout << "Relu forward\n";
 	NNException::throwIfDeviceErrorOccurred("Cannot perform ReLU forward propagation.");
-
+        std::cout << " Relu forward shape.x:" << A.shape.x << "\n";
+        std::cout << " Relu forward shape.y:" << A.shape.y << "\n";
+        Z.freeMem();
 	return A;
 }
 
@@ -49,9 +51,12 @@ Matrix& ReLUActivation::backprop(Matrix& dA, float learning_rate) {
 
 	dim3 block_size(256);
 	dim3 num_of_blocks((Z.shape.y * Z.shape.x + block_size.x - 1) / block_size.x);
-	ReluActivationBackprop<<<num_of_blocks, block_size>>>(Z.data_device.get(), dA.data_device.get(),dZ.data_device.get(), Z.shape.x, Z.shape.y);
+	ReluActivationBackprop<<<num_of_blocks, block_size>>>(Z.data_device, dA.data_device,dZ.data_device, Z.shape.x, Z.shape.y);
         std::cout << "Relu Backward\n"; 	
         NNException::throwIfDeviceErrorOccurred("Cannot perform ReLU back propagation");
 
+        std::cout << " Relu backward shape.x:" << dZ.shape.x << "\n";
+        std::cout << " Relu backward shape.y:" << dZ.shape.y << "\n";
+        dA.freeMem();
 	return dZ;
 }

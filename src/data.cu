@@ -1,6 +1,7 @@
 #include "data.hh"
 #include <stdlib.h>
 #include <iostream>
+#include "shape.hh"
 
 Data::Data(int num_nodes, size_t batch_size,int feature_size, int label_size, int* label, float* feature) :
 	num_nodes(num_nodes),batch_size(batch_size),feature_size(feature_size),label_size(label_size),feature(feature), label(label)
@@ -16,6 +17,29 @@ Data::Data(int num_nodes, size_t batch_size,int feature_size, int label_size, in
         std::cout << "feature_size :" << feature_size << "\n" ;
         std::cout << "label_size :" << label_size << "\n" ;
         
+        Shape input_shape(num_nodes,(int)(feature_size/10));
+        input_features.allocateMemoryIfNotAllocated(input_shape);
+        std::cout << "input_features.x:" << input_features.shape.x << "\n";
+        std::cout << "input_features.y:" << input_features.shape.y << "\n";
+
+        Shape input_label_shape(num_nodes,label_size);
+        input_labels.allocateMemoryIfNotAllocated(input_label_shape);
+        std::cout << "input_labels.x:" << input_labels.shape.x << "\n";
+        std::cout << "input_labels.y:" << input_labels.shape.y << "\n";
+	
+        for (int i = 0; i < num_nodes; i++) {
+	    for (int j = 0; j < feature_size; j++) {
+              //  std::cout<< "feature i j :" << i << " "<< j << "\n";  
+                input_features[i * (int)(feature_size/10) + j ] = feature [i * (int)(feature_size/10) + j];
+            }
+        }
+	for (int i = 0; i < num_nodes; i++) {
+	    for (int j = 0; j < (int)(label_size/10); j++) {
+                std::cout<< "label i j :" << i << " "<< j << "\n";  
+                input_labels[i*label_size + j] = (float) label[i*label_size + j];
+            }
+        }
+ /*
 	for (int i = 0; i < num_training_batches+1; i++) {
 // adding the input features into a Matrix form and pushing it.
            // std::cout << "start collecting training data for batch:" << i << "\n";
@@ -68,6 +92,7 @@ Data::Data(int num_nodes, size_t batch_size,int feature_size, int label_size, in
 	    test_batches[i].copyHostToDevice();
 	    test_targets[i].copyHostToDevice();
 	}
+*/
 }
 
 int Data::getNumOfTrainingBatches() {
@@ -78,18 +103,23 @@ int Data::getNumOfTestBatches() {
 	return num_test_batches;
 }
 
-std::vector<Matrix>& Data::getTrainingBatches() {
-	return training_batches;
+//std::vector<Matrix>& Data::getTrainingBatches() {
+Matrix& Data::getTrainingBatches() {
+//	return training_batches;
+	return input_features;
 }
 
-std::vector<Matrix>& Data::getTestBatches() {
-	return test_batches;
+Matrix& Data::getTestBatches() {
+//	return test_batches;
+	return input_features;
 }
 
-std::vector<Matrix>& Data::getTrainingTargets() {
-	return training_targets;
+Matrix& Data::getTrainingTargets() {
+//	return training_targets;
+        return input_labels;
 }
 
-std::vector<Matrix>& Data::getTestTargets() {
-	return test_targets;
+Matrix& Data::getTestTargets() {
+//	return test_targets;
+	return input_labels;
 }

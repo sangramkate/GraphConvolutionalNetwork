@@ -10,7 +10,10 @@ Matrix& NodeAggregator::forward(Matrix& A){
 this->A = A;
 Z.allocateMemoryIfNotAllocated(A.shape);
 std::cout<<"Nodeagg forward\n";
-SpMM(nnz_data, row, col, A.data_device.get(), Z.data_device.get(), A.shape.x, nodes, nnz);
+SpMM(nnz_data, row, col, A.data_device, Z.data_device, A.shape.x, nodes, nnz);
+    std::cout << " NodeAgg forward shape.x:" << Z.shape.x << "\n";
+    std::cout << " NodeAgg forward shape.y:" << Z.shape.y << "\n";
+A.freeMem();
 return Z;
 }
 
@@ -20,7 +23,10 @@ dA.allocateMemoryIfNotAllocated(dZ.shape);
 std::cout<<"Nodeagg backward\n";
 std::cout<<"dZ.Shape.x:" << dZ.shape.x << "\n";
 std::cout<<"dZ.Shape.x:" << dZ.shape.y << "\n";
-SpMM(nnz_data, row, col, dZ.data_device.get(), dA.data_device.get(), dZ.shape.y, nodes, nnz);
+SpMM(nnz_data, row, col, dZ.data_device, dA.data_device, dZ.shape.y, nodes, nnz);
+    std::cout << " NodeAgg backward shape.x:" << dA.shape.x << "\n";
+    std::cout << " NodeAgg backward shape.y:" << dA.shape.y << "\n";
+dZ.freeMem();
 return dA;
 }
 

@@ -28,17 +28,23 @@ __global__ void dBinaryCrossEntropyCost(float* predictions, float* target, float
 }
 
 float CostFunction::cost(Matrix predictions, Matrix target) {
-	assert(predictions.shape.x == target.shape.x);
+        std::cout << "predictions.x:" << predictions.shape.x <<"\n" ;
+        std::cout << "predictions.y:" << predictions.shape.y <<"\n" ;
+        std::cout << "target.x:" << target.shape.x <<"\n" ;
+        std::cout << "target.y:" << target.shape.y <<"\n" ;
+	assert(predictions.shape.y == target.shape.y);
 
 	float* cost;
-	cudaMallocManaged(&cost, sizeof(float));
+        std:: cout << "pointer created\n";
+	cudaMalloc(&cost, sizeof(float));
+        std:: cout << "Memory Allocated\nn";
 	*cost = 0.0f;
 
 	dim3 block_size(256);
 	dim3 num_of_blocks((predictions.shape.x + block_size.x - 1) / block_size.x);
-	binaryCrossEntropyCost<<<num_of_blocks, block_size>>>(predictions.data_device.get(),
-														  target.data_device.get(),
-														  predictions.shape.x, cost);
+        std::cout << "start finding cross entropy\n";
+	binaryCrossEntropyCost<<<num_of_blocks, block_size>>>(predictions.data_device, target.data_device,predictions.shape.x, cost);
+        std::cout << "done finding cross entropy\n";
 	cudaDeviceSynchronize();
 	NNException::throwIfDeviceErrorOccurred("Cannot compute binary cross entropy cost.");
 
@@ -53,9 +59,9 @@ Matrix CostFunction::dCost(Matrix predictions, Matrix target, Matrix dY) {
 
 	dim3 block_size(256);
 	dim3 num_of_blocks((predictions.shape.x + block_size.x - 1) / block_size.x);
-	dBinaryCrossEntropyCost<<<num_of_blocks, block_size>>>(predictions.data_device.get(),
-														   target.data_device.get(),
-														   dY.data_device.get(),
+	dBinaryCrossEntropyCost<<<num_of_blocks, block_size>>>(predictions.data_device,
+														   target.data_device,
+														   dY.data_device,
 														   predictions.shape.x);
 	NNException::throwIfDeviceErrorOccurred("Cannot compute derivative for binary cross entropy.");
 

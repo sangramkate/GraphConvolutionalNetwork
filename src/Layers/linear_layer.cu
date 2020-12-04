@@ -103,10 +103,10 @@ void LinearLayer::initializeWeightsRandomly(){
     std::cout << "W.shape.y:" << W.shape.y <<"\n";	
     for(int x = 0; x < W.shape.x; x++){
 	for(int y =0; y< W.shape.y; y++){
-             std::cout <<" x y :" << x << " " << y << " Acccess pattern :" <<  y* W.shape.x * + x<< "\n";
 	     W[x* W.shape.x + y] = normal_distribution(generator) * weights_init_threshold;	
 	}
     }
+    std::cout << "copying data from host to device\n";
     W.copyHostToDevice();
 }
 
@@ -119,14 +119,21 @@ void LinearLayer::initializeBiasWithZeros() {
 }
 
 Matrix& LinearLayer::forward(Matrix& A){
-    assert(W.shape.x = A.shape.y);
+    std::cout << " Linear forward A.x:" << A.shape.x << "\n";
+    std::cout << " Linear forward A.y:" << A.shape.y << "\n";
+    std::cout << " Linear forward W.x:" << W.shape.x << "\n";
+    std::cout << " Linear forward W.y:" << W.shape.y << "\n";
+    assert(W.shape.y = A.shape.y);
     this->A = A;
-    Shape Z_shape(A.shape.x,W.shape.y);
+    Shape Z_shape(A.shape.x,W.shape.x);
     Z.allocateMemoryIfNotAllocated(Z_shape);
     computeAndStoreLayerOutput(A);
     std::cout << "Linear Layer forward\n";
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
     
+    std::cout << " Linear forward shape.x:" << Z.shape.x << "\n";
+    std::cout << " Linear forward shape.y:" << Z.shape.y << "\n";
+    A.freeMem();
     return Z;
 	
 }
@@ -134,10 +141,10 @@ void LinearLayer::computeAndStoreLayerOutput(Matrix& A) {
 dim3 block_size(8, 8);
 dim3 num_of_blocks(	(Z.shape.x + block_size.x - 1) / block_size.x,
 					(Z.shape.y + block_size.y - 1) / block_size.y);
-linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device.get(),
-				                   A.data_device.get(),
-						   Z.data_device.get(),
-						   b.data_device.get(),
+linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device,
+				                   A.data_device,
+						   Z.data_device,
+						   b.data_device,
 						   W.shape.x, W.shape.y,
 						   A.shape.x, A.shape.y);
 }
@@ -155,15 +162,18 @@ Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 	updateWeights(dZ, learning_rate);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform weights update.");
 
+        std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
+        std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
+        dZ.freeMem();
 	return dA;
 }
 
 void LinearLayer::computeAndStoreBackpropError(Matrix& dZ) {
 	dim3 block_size(8, 8);
 	dim3 num_of_blocks((A.shape.x + block_size.x - 1) / block_size.x,(A.shape.y + block_size.y - 1) / block_size.y);
-	linearLayerBackprop<<<num_of_blocks, block_size >>> ( W.data_device.get(),
-							     dZ.data_device.get(),
-							     dA.data_device.get(),
+	linearLayerBackprop<<<num_of_blocks, block_size >>> ( W.data_device,
+							     dZ.data_device,
+							     dA.data_device,
 							     W.shape.x, W.shape.y,
 							     dZ.shape.x, dZ.shape.y);
 }
@@ -171,9 +181,9 @@ void LinearLayer::computeAndStoreBackpropError(Matrix& dZ) {
 void LinearLayer::updateWeights(Matrix& dZ, float learning_rate) {
 	dim3 block_size(8, 8);
 	dim3 num_of_blocks((W.shape.x + block_size.x - 1) / block_size.x,(W.shape.y + block_size.y - 1) / block_size.y);
-	linearLayerUpdateWeights<<<num_of_blocks, block_size>>>(dZ.data_device.get(),
-								A.data_device.get(),
-								W.data_device.get(),
+	linearLayerUpdateWeights<<<num_of_blocks, block_size>>>(dZ.data_device,
+								A.data_device,
+								W.data_device,
 								dZ.shape.x, dZ.shape.y,
 								A.shape.x, A.shape.y,
 								learning_rate);
@@ -182,8 +192,8 @@ void LinearLayer::updateWeights(Matrix& dZ, float learning_rate) {
 void LinearLayer::updateBias(Matrix& dZ, float learning_rate) {
 	dim3 block_size(256);
 	dim3 num_of_blocks( (dZ.shape.y * dZ.shape.x + block_size.x - 1) / block_size.x);
-	linearLayerUpdateBias<<<num_of_blocks, block_size>>>(dZ.data_device.get(),
-							     b.data_device.get(),
+	linearLayerUpdateBias<<<num_of_blocks, block_size>>>(dZ.data_device,
+							     b.data_device,
 							     dZ.shape.x, dZ.shape.y,
 							     b.shape.x, learning_rate);
 }

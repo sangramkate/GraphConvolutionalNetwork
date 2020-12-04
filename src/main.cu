@@ -105,11 +105,13 @@ int main() {
 	for (int epoch = 0; epoch < 1001; epoch++) {
 		float cost = 0.0;
 
-		for (int batch = 0; batch < dataset.getNumOfTrainingBatches(); batch++) {
-			Y = nn.forward(dataset.getTrainingBatches().at(batch));
-			nn.backprop(Y,dataset.getTrainingTargets().at(batch));
-			cost += bce_cost.cost(Y,dataset.getTrainingTargets().at(batch));
-		}
+//		for (int batch = 0; batch < dataset.getNumOfTrainingBatches(); batch++) {
+			Y = nn.forward(dataset.input_features);
+			nn.backprop(Y,dataset.input_labels);
+                        std::cout << "cost computation start \n";
+			cost += bce_cost.cost(Y,dataset.input_labels);
+                        std::cout << "cost computed!\n";
+//		}
 
 		if (epoch % 100 == 0) {
 			std::cout 	<< "Epoch: " << epoch
@@ -120,12 +122,12 @@ int main() {
 
         float accuracy = 0.0f;
         float final_accuracy = 0.0f;
-	for (int batch = 0; batch < dataset.getNumOfTestBatches(); batch++) {
-		Y = nn.forward(dataset.getTestBatches().at(batch));
+//	for (int batch = 0; batch < dataset.getNumOfTestBatches(); batch++) {
+		Y = nn.forward(dataset.input_features);
 		Y.copyDeviceToHost();
-                accuracy = accuracy + computeAccuracy(Y,dataset.getTestTargets().at(batch));
-	}
-        final_accuracy = accuracy/dataset.getNumOfTestBatches();
+                accuracy = accuracy + computeAccuracy(Y,dataset.input_labels);
+//	}
+        final_accuracy = accuracy/2708;
 	// compute accuracy
 
 	std::cout << "Accuracy: " << final_accuracy << std::endl;

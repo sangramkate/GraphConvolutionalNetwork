@@ -25,13 +25,15 @@ private:
 
 public:
 
+        Matrix input_features;
+        Matrix input_labels;
 	Data(int num_nodes,size_t batch_size, int feature_size, int label_size, int* label, float* feature);
 
 	int getNumOfTrainingBatches();
 	int getNumOfTestBatches();
-	std::vector<Matrix>& getTrainingBatches();
-	std::vector<Matrix>& getTestBatches();
-	std::vector<Matrix>& getTrainingTargets();
-	std::vector<Matrix>& getTestTargets();
+	Matrix& getTrainingBatches();
+	Matrix& getTestBatches();
+	Matrix& getTrainingTargets();
+	Matrix& getTestTargets();
 
 };
