@@ -17,9 +17,9 @@ __global__ void linearLayerForward( float* W, float* A, float* Z, float* b,
   
     float Z_value = 0;
   
-    if( row < Z_y_dim && col << Z_x_dim){
-       for(int i=0; i< W_x_dim; i=i+1){
-           Z_value += W[i * W_y_dim + col] * A[i + A_y_dim * row]; 
+    if( row < Z_x_dim && col < Z_y_dim){
+       for(int i=0; i< W_y_dim; i=i+1){
+           Z_value += W[i + W_y_dim * col] * A[i + A_y_dim * row]; 
        }
        Z[row * Z_y_dim + col] = Z_value + b[col];
     }
@@ -36,7 +36,7 @@ __global__ void linearLayerBackprop( float* W, float* dZ, float*dA,
   
     float dA_value = 0.0f;
   	if (row < dA_x_dim && col < dA_y_dim) {
-		    for (int i = 0; i < W_y_dim; i++) {
+		    for (int i = 0; i < W_x_dim; i++) {
 			      dA_value += W[i * W_y_dim + col] * dZ[ i + dZ_y_dim * row];
 		    }
 		    dA[row * dA_y_dim + col] = dA_value;
@@ -59,9 +59,9 @@ __global__ void linearLayerUpdateWeights(  float* dZ, float* A, float* W,
 
 	if (row < W_y_dim && col < W_x_dim) {
 		for (int i = 0; i < dZ_x_dim; i++) {
-			dW_value += dZ[i * dZ_y_dim + col ] * A[row * A_y_dim + i];
+			dW_value += dZ[i * dZ_y_dim + col ] * A[row + A_y_dim * i];
 		}
-		W[row * W_y_dim + col] = W[row * W_y_dim + col] - learning_rate * (dW_value / A_y_dim);
+		W[col * W_y_dim + row] = W[col * W_y_dim + row] - learning_rate * (dW_value / A_y_dim);
 	}
 }
 
@@ -144,8 +144,7 @@ Matrix& LinearLayer::forward(Matrix& A, bool training){
 }
 void LinearLayer::computeAndStoreLayerOutput(Matrix& A) {
 dim3 block_size(32,32);
-dim3 num_of_blocks(	(Z.shape.x + block_size.x - 1) / block_size.x,
-					(Z.shape.y + block_size.y - 1) / block_size.y);
+dim3 num_of_blocks(((Z.shape.x + block_size.x - 1) / block_size.x),((Z.shape.y + block_size.y - 1) / block_size.y) );
 linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device,
 				                   A.data_device,
 						   Z.data_device,
@@ -166,6 +165,10 @@ Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 
 	updateWeights(dZ, learning_rate);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform weights update.");
+        std::cout << " Linear forward dZ.x:" << dZ.shape.x << "\n";
+        std::cout << " Linear forward dZ.y:" << dZ.shape.y << "\n";
+        std::cout << " Linear forward W.x:" << W.shape.x << "\n";
+        std::cout << " Linear forward W.y:" << W.shape.y << "\n";
 
         std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
         std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
