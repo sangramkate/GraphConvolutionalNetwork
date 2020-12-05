@@ -83,7 +83,7 @@ LinearLayer::LinearLayer(std::string name, Shape W_shape):
 {
     this->name = name;
     std::cout << "updated layer name\n";
-    b.allocateMemory();
+    b.allocateCudaMemory();
     std::cout << "b allocated\n";
     W.allocateMemory();
     std::cout << "w allocated\n";
@@ -102,20 +102,21 @@ void LinearLayer::initializeWeightsRandomly(){
     std::cout << "W.shape.x:" << W.shape.x <<"\n";	
     std::cout << "W.shape.y:" << W.shape.y <<"\n";	
     for(int x = 0; x < W.shape.x; x++){
-	for(int y =0; y< W.shape.y; y++){
-	     W[x* W.shape.x + y] = normal_distribution(generator) * weights_init_threshold;	
+	for(int y = 0 ; y < W.shape.y; y++){
+	     W[x * W.shape.y + y] = normal_distribution(generator) * weights_init_threshold;	
 	}
     }
     std::cout << "copying data from host to device\n";
     W.copyHostToDevice();
+    free(W.data_host);
 }
 
 void LinearLayer::initializeBiasWithZeros() {
-	for (int x = 0; x < b.shape.x; x++) {
-		b[x] = 0;
-	}
-
-	b.copyHostToDevice();
+	//for (int x = 0; x < b.shape.x; x++) {
+	//	b[x] = 0;
+	//}
+	//b.copyHostToDevice();
+        cudaMemset(b.data_device, 0, b.shape.x * b.shape.y* sizeof(float));
 }
 
 Matrix& LinearLayer::forward(Matrix& A){
@@ -123,6 +124,7 @@ Matrix& LinearLayer::forward(Matrix& A){
     std::cout << " Linear forward A.y:" << A.shape.y << "\n";
     std::cout << " Linear forward W.x:" << W.shape.x << "\n";
     std::cout << " Linear forward W.y:" << W.shape.y << "\n";
+    std::cout << " Linear forward A address:" << A.data_device << "\n";
     assert(W.shape.y = A.shape.y);
     this->A = A;
     Shape Z_shape(A.shape.x,W.shape.x);
@@ -133,6 +135,9 @@ Matrix& LinearLayer::forward(Matrix& A){
     
     std::cout << " Linear forward shape.x:" << Z.shape.x << "\n";
     std::cout << " Linear forward shape.y:" << Z.shape.y << "\n";
+    std::cout << " Linear forward A shape.x:" << A.shape.x << "\n";
+    std::cout << " Linear forward A shape.y:" << A.shape.y << "\n";
+    std::cout << " Linear forward A address:" << A.data_device << "\n";
     A.freeMem();
     return Z;
 	

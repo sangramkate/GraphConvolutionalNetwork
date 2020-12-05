@@ -4,13 +4,10 @@
 
 class Matrix{
 private:
-    bool device_allocated;
-    bool host_allocated;
-    
-    void allocateCudaMemory();
-    void allocateHostMemory();
     
 public:
+    bool device_allocated;
+    bool host_allocated;
     Shape shape;
     float* data_device;
     float* data_host;
@@ -18,6 +15,8 @@ public:
     Matrix(size_t x_dim = 1, size_t y_dim = 1);
     Matrix(Shape shape);
     
+    void allocateCudaMemory();
+    void allocateHostMemory();
     void allocateMemory();
     void allocateMemoryIfNotAllocated(Shape shape);
     void copyHostToDevice();

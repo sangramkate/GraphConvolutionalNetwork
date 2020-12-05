@@ -29,6 +29,7 @@ int main() {
             label[i] = a;
             i++;
         }
+        myfile.close();
 
 	srand( time(NULL) );
 
@@ -48,11 +49,11 @@ int main() {
         float* d_edge_data;
         cudaError_t alloc;
         int nnz = 5278;
-        alloc = cudaMalloc(&d_row_start,(2708+1) * sizeof(*d_row_start));
+        alloc = cudaMalloc(&d_row_start,(2708+1) * sizeof(int));
         if(alloc != cudaSuccess) {
             printf("malloc for row info failed\n");
         }
-        alloc = cudaMalloc(&d_edge_dst,(5278) * sizeof(*d_edge_dst));
+        alloc = cudaMalloc(&d_edge_dst,(5278) * sizeof(int));
         if(alloc != cudaSuccess) {
             printf("malloc for col info failed\n");
         }
@@ -81,10 +82,12 @@ int main() {
 	} 
 	std::cout << "Dataset captured!\n";
         Data dataset(2708,100,feature_size,label_size,label,h_B);
+        free(label);
+        free(h_B);
 	std::cout << "Dataset captured!\n";
         NeuralNetwork nn;
         std::cout << "Instance of Neural Network\n";
-	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
+	//nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
         std::cout << "Added Nodeaggregator 1 layer\n";
 	nn.addLayer(new LinearLayer("linear1", Shape(100,feature_size)));
         std::cout << "Added Linear layer 1\n";
@@ -106,6 +109,7 @@ int main() {
 		float cost = 0.0;
 
 //		for (int batch = 0; batch < dataset.getNumOfTrainingBatches(); batch++) {
+                        std::cout << "input_features:" << dataset.input_features.data_device << "\n";
 			Y = nn.forward(dataset.input_features);
 			nn.backprop(Y,dataset.input_labels);
                         std::cout << "cost computation start \n";
@@ -129,9 +133,14 @@ int main() {
 //	}
         final_accuracy = accuracy/2708;
 	// compute accuracy
-
+        
 	std::cout << "Accuracy: " << final_accuracy << std::endl;
-
+        cudaFree(d_row_start);
+        cudaFree(d_edge_dst);
+        cudaFree(d_B);
+        cudaFree(d_edge_data);
+        dataset.input_features.freeMem();
+        dataset.input_labels.freeMem();
 	return 0;
 }
 

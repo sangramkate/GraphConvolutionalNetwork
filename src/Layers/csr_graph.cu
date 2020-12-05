@@ -203,6 +203,10 @@ alloc = cudaMemcpy(d_edge_dst, h_edge_dst,((nedges) * sizeof(int)), cudaMemcpyHo
 if(alloc != cudaSuccess) {
     printf("col info memcpy failed \n");
 }
+  free(h_B);
+  free(h_row_start);
+  free(h_edge_dst);
+  fin.close(); 
   cfile.close(); // probably galois doesn't close its file due to mmap.
   t.stop();
   return 0;
@@ -293,5 +297,6 @@ unsigned CSRGraph::read(char file[], int* num_nodes, int* num_edges) {
   int num_edge = numEdges;
   num_nodes = &num_node;
   num_edges = &num_edge;
+  cfile.close();
   return 0;
 }

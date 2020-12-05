@@ -23,7 +23,7 @@ void Matrix::allocateCudaMemory(){
 void Matrix::allocateHostMemory(){
     if(!host_allocated){
         //data_host = std::shared_ptr<float>(new float[shape.x * shape.y], [&](float * ptr){delete[] ptr;});
-        data_host = (float *) malloc(shape.x * shape.y);
+        data_host = (float *) malloc(shape.x * shape.y * sizeof(float));
         host_allocated = true;
     }
 }
@@ -34,7 +34,7 @@ void Matrix::allocateMemory(){
 }
 
 void Matrix::allocateMemoryIfNotAllocated(Shape shape){
-    if(!device_allocated && !host_allocated){
+    if(!device_allocated){
         this->shape = shape;
         allocateMemory();
     }
@@ -72,7 +72,8 @@ void Matrix::copyDeviceToHost(){
 }
 void Matrix::freeMem(){
    if(device_allocated && host_allocated){
-       cudaFree(data_device);
+       cudaError_t errorCode = cudaFree(data_device);
+       std::cout << "Free Error:" << errorCode << "\n";
        NNException::throwIfDeviceErrorOccurred("Can not delete CUDA memory");
        free(data_host);
        device_allocated = false;

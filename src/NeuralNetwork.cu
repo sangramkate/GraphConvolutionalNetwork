@@ -33,7 +33,7 @@ void NeuralNetwork::backprop(Matrix predictions, Matrix target) {
 	for (auto it = this->layers.rbegin(); it != this->layers.rend(); it++) {
 		error = (*it)->backprop(error, learning_rate);
 	}
-
+        error.freeMem();
 	cudaDeviceSynchronize();
 }
 
