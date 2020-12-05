@@ -10,9 +10,17 @@ Matrix::Matrix(Shape shape):
     Matrix(shape.x,shape.y)
 { }
 
+void Matrix::allocateCuda(Shape shape){
+        data_device = nullptr;
+        this->shape = shape;
+        cudaMalloc(&data_device,shape.x * shape.y * sizeof(float));
+        NNException::throwIfDeviceErrorOccurred("Cannot allocate CUDA memory for tensor.");
+        //data_device = std::shared_ptr<float>(device_memory,[&](float* ptr){cudaFree(ptr);});
+        device_allocated = true;
+}
 void Matrix::allocateCudaMemory(){
     if (!device_allocated){
-        //float* device_memory = nullptr;
+        data_device = nullptr;
         cudaMalloc(&data_device,shape.x * shape.y * sizeof(float));
         NNException::throwIfDeviceErrorOccurred("Cannot allocate CUDA memory for tensor.");
         //data_device = std::shared_ptr<float>(device_memory,[&](float* ptr){cudaFree(ptr);});
@@ -34,8 +42,10 @@ void Matrix::allocateMemory(){
 }
 
 void Matrix::allocateMemoryIfNotAllocated(Shape shape){
+    std::cout << "device_allocated::" << device_allocated << "\n";
     if(!device_allocated){
         this->shape = shape;
+        std::cout << "allocating memory for new Matrix\n";
         allocateMemory();
     }
 }
@@ -78,6 +88,7 @@ void Matrix::freeMem(){
        free(data_host);
        device_allocated = false;
        host_allocated = false;
+       std::cout << "Free memory device_allocation:" << device_allocated << "\n";
    }
 }
 

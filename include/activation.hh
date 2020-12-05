@@ -14,6 +14,6 @@ public:
 	ReLUActivation(std::string name);
 	~ReLUActivation();
 
-	Matrix& forward(Matrix& Z, bool training);
+	Matrix& forward(Matrix& Z, bool training, bool freeMatrix);
 	Matrix& backprop(Matrix& dA, float learning_rate = 0.01);
 };

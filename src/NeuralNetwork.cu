@@ -17,10 +17,16 @@ void NeuralNetwork::addLayer(NNLayer* layer) {
 
 Matrix NeuralNetwork::forward(Matrix X, bool training) {
 	Matrix Z = X;
-
+        int cnt = 0;
+        bool freeMatrix;
 	for (auto layer : layers) {
-		Z = layer->forward(Z,training);
-	}
+                if(cnt == 0)
+                    freeMatrix = false;
+                else
+                    freeMatrix = true;
+		Z = layer->forward(Z,training,freeMatrix);
+	        cnt++;
+        }
 
 	Y = Z;
 	return Y;

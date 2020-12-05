@@ -17,6 +17,6 @@ public:
     SoftMax(std::string name);
     ~SoftMax();
     
-    Matrix& forward(Matrix& A, bool training);
+    Matrix& forward(Matrix& A, bool training, bool freeMatrix);
     Matrix& backprop(Matrix& dZ, float learning_rate = 0.01);
 };

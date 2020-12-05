@@ -15,6 +15,7 @@ public:
     Matrix(size_t x_dim = 1, size_t y_dim = 1);
     Matrix(Shape shape);
     
+    void allocateCuda(Shape shape);
     void allocateCudaMemory();
     void allocateHostMemory();
     void allocateMemory();

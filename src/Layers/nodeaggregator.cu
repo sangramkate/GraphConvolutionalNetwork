@@ -6,7 +6,7 @@
 #include "csr_graph.cu"
 #include "csr_graph.h"
 
-Matrix& NodeAggregator::forward(Matrix& A,bool training){
+Matrix& NodeAggregator::forward(Matrix& A,bool training,bool freeMatrix){
 std::cout << "A:" << A.data_device << "\n";
 this->A = A;
 std::cout << "A:" << A.data_device << "\n";

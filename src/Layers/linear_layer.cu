@@ -119,7 +119,7 @@ void LinearLayer::initializeBiasWithZeros() {
         cudaMemset(b.data_device, 0, b.shape.x * b.shape.y* sizeof(float));
 }
 
-Matrix& LinearLayer::forward(Matrix& A, bool training){
+Matrix& LinearLayer::forward(Matrix& A, bool training, bool freeMatrix){
     std::cout << " Linear forward A.x:" << A.shape.x << "\n";
     std::cout << " Linear forward A.y:" << A.shape.y << "\n";
     std::cout << " Linear forward W.x:" << W.shape.x << "\n";
@@ -128,7 +128,7 @@ Matrix& LinearLayer::forward(Matrix& A, bool training){
     assert(W.shape.y = A.shape.y);
     this->A = A;
     Shape Z_shape(A.shape.x,W.shape.x);
-    Z.allocateMemoryIfNotAllocated(Z_shape);
+    Z.allocateCuda(Z_shape);
     computeAndStoreLayerOutput(A);
     std::cout << "Linear Layer forward\n";
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
@@ -138,7 +138,8 @@ Matrix& LinearLayer::forward(Matrix& A, bool training){
     std::cout << " Linear forward A shape.x:" << A.shape.x << "\n";
     std::cout << " Linear forward A shape.y:" << A.shape.y << "\n";
     std::cout << " Linear forward A address:" << A.data_device << "\n";
-    A.freeMem();
+    if(freeMatrix)
+        A.freeMem();
     return Z;
 	
 }
@@ -154,7 +155,7 @@ linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device,
 }
 
 Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
-	dA.allocateMemoryIfNotAllocated(A.shape);
+	dA.allocateCuda(A.shape);
 
         std::cout << "Linear Layer backward\n";
 	computeAndStoreBackpropError(dZ);

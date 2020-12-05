@@ -36,11 +36,14 @@ float CostFunction::cost(Matrix predictions, Matrix target) {
 
 	float* cost;
         std:: cout << "pointer created\n";
-	cudaMalloc(&cost, sizeof(float));
-        std:: cout << "Memory Allocated\nn";
+	cudaMallocManaged(&cost, sizeof(float));
+        std::cout <<"this gets printed\n";
+        std:: cout << "Memory Allocated\n";
 	*cost = 0.0f;
+        std:: cout << "cost initialized\nn";
 
 	dim3 block_size(256);
+        std:: cout << "dim3 block size\nn";
 	dim3 num_of_blocks((predictions.shape.x + block_size.x - 1) / block_size.x);
         std::cout << "start finding cross entropy\n";
 	binaryCrossEntropyCost<<<num_of_blocks, block_size>>>(predictions.data_device, target.data_device,predictions.shape.x, cost);

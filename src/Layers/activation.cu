@@ -30,10 +30,10 @@ ReLUActivation::ReLUActivation(std::string name) {
 
 ReLUActivation::~ReLUActivation() { }
 
-Matrix& ReLUActivation::forward(Matrix& Z, bool training) {
-	this->Z = Z;
-	A.allocateMemoryIfNotAllocated(Z.shape); 
-	stored_Z.allocateMemoryIfNotAllocated(Z.shape);
+Matrix& ReLUActivation::forward(Matrix& P, bool training, bool freeMatrix) {
+	this->Z = P;
+	A.allocateCuda(Z.shape); 
+	stored_Z.allocateCuda(Z.shape);
 
 	dim3 block_size(64);
 	dim3 num_of_blocks((Z.shape.y * Z.shape.x + block_size.x - 1) / block_size.x);
@@ -43,7 +43,8 @@ Matrix& ReLUActivation::forward(Matrix& Z, bool training) {
 	NNException::throwIfDeviceErrorOccurred("Cannot perform ReLU forward propagation.");
         std::cout << " Relu forward shape.x:" << A.shape.x << "\n";
         std::cout << " Relu forward shape.y:" << A.shape.y << "\n";
-        Z.freeMem();
+        if(freeMatrix)
+            P.freeMem();
         if(!training){
            stored_Z.freeMem();
         }
@@ -51,7 +52,7 @@ Matrix& ReLUActivation::forward(Matrix& Z, bool training) {
 }
 
 Matrix& ReLUActivation::backprop(Matrix& dA, float learning_rate) {
-	dZ.allocateMemoryIfNotAllocated(stored_Z.shape);
+	dZ.allocateCuda(stored_Z.shape);
         std::cout << "Z dim x:" << stored_Z.shape.x << "\n";
         std::cout << "Z dim y:" << stored_Z.shape.y << "\n";
         std::cout << "dA dim x:" << dA.shape.x << "\n";
