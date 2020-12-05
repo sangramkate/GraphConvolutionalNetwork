@@ -24,7 +24,7 @@ public:
     LinearLayer(std::string name, Shape W_shape);
     ~LinearLayer();
     
-    Matrix& forward(Matrix& A);
+    Matrix& forward(Matrix& A, bool training);
     Matrix& backprop(Matrix& dZ, float learning_rate = 0.01);
     
     int getXdim() const;

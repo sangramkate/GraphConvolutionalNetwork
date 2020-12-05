@@ -60,7 +60,7 @@ SoftMax::SoftMax(std::string name)
 SoftMax::~SoftMax()
 { }
 
-Matrix& SoftMax::forward(Matrix& A){
+Matrix& SoftMax::forward(Matrix& A,bool  training){
     this->A = A;
     Shape Z_shape(A.shape.x,A.shape.y);
     Z.allocateMemoryIfNotAllocated(Z_shape);

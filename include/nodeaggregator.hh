@@ -17,7 +17,7 @@ public:
     NodeAggregator(std::string name, float* nnz_data, int* row, int*col, int nodes, int nnz);
     ~NodeAggregator();
     
-    Matrix& forward(Matrix& A);
+    Matrix& forward(Matrix& A, bool training);
     Matrix& backprop(Matrix& dZ, float learning_rate);
    
 //    int getXdim() const;

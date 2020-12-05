@@ -8,11 +8,12 @@ private:
 
 	Matrix Z;
 	Matrix dZ;
+        Matrix stored_Z;
 
 public:
 	ReLUActivation(std::string name);
 	~ReLUActivation();
 
-	Matrix& forward(Matrix& Z);
+	Matrix& forward(Matrix& Z, bool training);
 	Matrix& backprop(Matrix& dA, float learning_rate = 0.01);
 };
