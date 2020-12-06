@@ -87,18 +87,18 @@ int main() {
 	std::cout << "Dataset captured!\n";
         NeuralNetwork nn;
         std::cout << "Instance of Neural Network\n";
-	//	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
+	//nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
         std::cout << "Added Nodeaggregator 1 layer\n";
 	nn.addLayer(new LinearLayer("linear1", Shape(100,feature_size)));
         std::cout << "Added Linear layer 1\n";
 	nn.addLayer(new ReLUActivation("relu2"));
         std::cout << "Added relu layer 1\n";
-        //	nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
+       // nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
         std::cout << "Added Nodeaggregator layer 2\n";
 	nn.addLayer(new LinearLayer("linear2", Shape(label_size,100)));
         std::cout << "Added Linear layer 2\n";
 	nn.addLayer(new ReLUActivation("relu2"));
-        std::cout << "Added Relu layer 2\n";
+        std::cout << "Added Relu layer 2\n"; 
         nn.addLayer(new SoftMax("softmax"));
         std::cout << "Added softmax layer \n";
 
@@ -109,14 +109,14 @@ int main() {
 		float cost = 0.0;
 
 //		for (int batch = 0; batch < dataset.getNumOfTrainingBatches(); batch++) {
-                        std::cout << "input_features:" << dataset.input_features.data_device << "\n";
+                       // std::cout << "input_features:" << dataset.input_features.data_device << "\n";
 			Y = nn.forward(dataset.input_features, true);
 			nn.backprop(Y,dataset.input_labels);
-                        std::cout << "cost computation start \n";
+                      //  std::cout << "cost computation start \n";
 			cost += bce_cost.cost(Y,dataset.input_labels);
-                        std::cout << "cost computed!\n";
+                      //  std::cout << "cost computed!\n";
 //		}
-
+                std::cout << "epoch:" << epoch << "\n";
 		if (epoch % 100 == 0) {
 			std::cout 	<< "Epoch: " << epoch
 						<< ", Cost: " << cost / 100

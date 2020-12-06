@@ -82,15 +82,15 @@ LinearLayer::LinearLayer(std::string name, Shape W_shape):
     W(W_shape),b(W_shape.y,1)
 {
     this->name = name;
-    std::cout << "updated layer name\n";
+//    std::cout << "updated layer name\n";
     b.allocateCudaMemory();
-    std::cout << "b allocated\n";
+//    std::cout << "b allocated\n";
     W.allocateMemory();
-    std::cout << "w allocated\n";
+//    std::cout << "w allocated\n";
     initializeBiasWithZeros();
-    std::cout << "bias initialized\n";
+//   std::cout << "bias initialized\n";
     initializeWeightsRandomly();
-    std::cout << "weights initialized\n";
+//    std::cout << "weights initialized\n";
 }
 
 LinearLayer::~LinearLayer()
@@ -99,14 +99,14 @@ LinearLayer::~LinearLayer()
 void LinearLayer::initializeWeightsRandomly(){
     std::default_random_engine generator;
     std::normal_distribution<float> normal_distribution(0.0, 1.0);
-    std::cout << "W.shape.x:" << W.shape.x <<"\n";	
-    std::cout << "W.shape.y:" << W.shape.y <<"\n";	
+//    std::cout << "W.shape.x:" << W.shape.x <<"\n";	
+//    std::cout << "W.shape.y:" << W.shape.y <<"\n";	
     for(int x = 0; x < W.shape.x; x++){
 	for(int y = 0 ; y < W.shape.y; y++){
 	     W[x * W.shape.y + y] = normal_distribution(generator) * weights_init_threshold;	
 	}
     }
-    std::cout << "copying data from host to device\n";
+//    std::cout << "copying data from host to device\n";
     W.copyHostToDevice();
     free(W.data_host);
 }
@@ -120,24 +120,24 @@ void LinearLayer::initializeBiasWithZeros() {
 }
 
 Matrix& LinearLayer::forward(Matrix& A, bool training, bool freeMatrix){
-    std::cout << " Linear forward A.x:" << A.shape.x << "\n";
-    std::cout << " Linear forward A.y:" << A.shape.y << "\n";
-    std::cout << " Linear forward W.x:" << W.shape.x << "\n";
-    std::cout << " Linear forward W.y:" << W.shape.y << "\n";
-    std::cout << " Linear forward A address:" << A.data_device << "\n";
+ //   std::cout << " Linear forward A.x:" << A.shape.x << "\n";
+ //  std::cout << " Linear forward A.y:" << A.shape.y << "\n";
+ //  std::cout << " Linear forward W.x:" << W.shape.x << "\n";
+ //  std::cout << " Linear forward W.y:" << W.shape.y << "\n";
+ //   std::cout << " Linear forward A address:" << A.data_device << "\n";
     assert(W.shape.y = A.shape.y);
     this->A = A;
     Shape Z_shape(A.shape.x,W.shape.x);
     Z.allocateCuda(Z_shape);
     computeAndStoreLayerOutput(A);
-    std::cout << "Linear Layer forward\n";
+//    std::cout << "Linear Layer forward\n";
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
     
-    std::cout << " Linear forward shape.x:" << Z.shape.x << "\n";
-    std::cout << " Linear forward shape.y:" << Z.shape.y << "\n";
-    std::cout << " Linear forward A shape.x:" << A.shape.x << "\n";
-    std::cout << " Linear forward A shape.y:" << A.shape.y << "\n";
-    std::cout << " Linear forward A address:" << A.data_device << "\n";
+//    std::cout << " Linear forward shape.x:" << Z.shape.x << "\n";
+//    std::cout << " Linear forward shape.y:" << Z.shape.y << "\n";
+//    std::cout << " Linear forward A shape.x:" << A.shape.x << "\n";
+//    std::cout << " Linear forward A shape.y:" << A.shape.y << "\n";
+//    std::cout << " Linear forward A address:" << A.data_device << "\n";
     if(freeMatrix)
         A.freeMem();
     return Z;
@@ -157,7 +157,7 @@ linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device,
 Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 	dA.allocateCuda(A.shape);
 
-        std::cout << "Linear Layer backward\n";
+      //  std::cout << "Linear Layer backward\n";
 	computeAndStoreBackpropError(dZ);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
 
@@ -166,13 +166,13 @@ Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 
 	updateWeights(dZ, learning_rate);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform weights update.");
-        std::cout << " Linear forward dZ.x:" << dZ.shape.x << "\n";
-        std::cout << " Linear forward dZ.y:" << dZ.shape.y << "\n";
-        std::cout << " Linear forward W.x:" << W.shape.x << "\n";
-        std::cout << " Linear forward W.y:" << W.shape.y << "\n";
+      //  std::cout << " Linear forward dZ.x:" << dZ.shape.x << "\n";
+      //  std::cout << " Linear forward dZ.y:" << dZ.shape.y << "\n";
+      //  std::cout << " Linear forward W.x:" << W.shape.x << "\n";
+      //  std::cout << " Linear forward W.y:" << W.shape.y << "\n";
 
-        std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
-        std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
+      //  std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
+      //  std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
         dZ.freeMem();
 	return dA;
 }

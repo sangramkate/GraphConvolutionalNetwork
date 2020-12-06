@@ -42,19 +42,19 @@ void Matrix::allocateMemory(){
 }
 
 void Matrix::allocateMemoryIfNotAllocated(Shape shape){
-    std::cout << "device_allocated::" << device_allocated << "\n";
+    //std::cout << "device_allocated::" << device_allocated << "\n";
     if(!device_allocated){
         this->shape = shape;
-        std::cout << "allocating memory for new Matrix\n";
+     //   std::cout << "allocating memory for new Matrix\n";
         allocateMemory();
     }
 }
 
 void Matrix::copyHostToDevice(){
     if(device_allocated && host_allocated){
-        std::cout << "copying data from host to device \n";
-        std::cout << "shape.x :" << shape.x << "\n";
-        std::cout << "shape.y :" << shape.y << "\n";
+      //  std::cout << "copying data from host to device \n";
+      //  std::cout << "shape.x :" << shape.x << "\n";
+      //  std::cout << "shape.y :" << shape.y << "\n";
         size_t *free;
         size_t *total;
         cudaMemcpy(data_device, data_host, shape.x * shape.y * sizeof(float),cudaMemcpyHostToDevice);
@@ -83,12 +83,12 @@ void Matrix::copyDeviceToHost(){
 void Matrix::freeMem(){
    if(device_allocated && host_allocated){
        cudaError_t errorCode = cudaFree(data_device);
-       std::cout << "Free Error:" << errorCode << "\n";
+     //  std::cout << "Free Error:" << errorCode << "\n";
        NNException::throwIfDeviceErrorOccurred("Can not delete CUDA memory");
        free(data_host);
        device_allocated = false;
        host_allocated = false;
-       std::cout << "Free memory device_allocation:" << device_allocated << "\n";
+     //  std::cout << "Free memory device_allocation:" << device_allocated << "\n";
    }
 }
 
