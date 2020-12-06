@@ -112,11 +112,11 @@ int main() {
                        // std::cout << "input_features:" << dataset.input_features.data_device << "\n";
 			Y = nn.forward(dataset.input_features, true);
 			nn.backprop(Y,dataset.input_labels);
-                      //  std::cout << "cost computation start \n";
+                        //std::cout << "cost computation start \n";
 			cost += bce_cost.cost(Y,dataset.input_labels);
-                      //  std::cout << "cost computed!\n";
+                        //std::cout << "cost computed!\n";
 //		}
-                std::cout << "epoch:" << epoch << "\n";
+//                std::cout << "epoch:" << epoch << "\n";
 		if (epoch % 100 == 0) {
 			std::cout 	<< "Epoch: " << epoch
 						<< ", Cost: " << cost / 100
@@ -128,7 +128,10 @@ int main() {
         float final_accuracy = 0.0f;
 //	for (int batch = 0; batch < dataset.getNumOfTestBatches(); batch++) {
 		Y = nn.forward(dataset.input_features, false);
+                Y.allocateHostMemory();
+                std::cout << "Y.host allocated:" << Y.host_allocated << "\n";
 		Y.copyDeviceToHost();
+                std::cout << "Y copied to host "<< "\n";
                 accuracy = accuracy + computeAccuracy(Y,dataset.input_labels);
 //	}
         final_accuracy = accuracy/2708;

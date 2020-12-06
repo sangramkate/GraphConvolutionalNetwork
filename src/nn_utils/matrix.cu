@@ -81,12 +81,14 @@ void Matrix::copyDeviceToHost(){
     }
 }
 void Matrix::freeMem(){
-   if(device_allocated && host_allocated){
+   if(device_allocated ){
        cudaError_t errorCode = cudaFree(data_device);
      //  std::cout << "Free Error:" << errorCode << "\n";
        NNException::throwIfDeviceErrorOccurred("Can not delete CUDA memory");
-       free(data_host);
        device_allocated = false;
+     }
+   if(host_allocated){
+       free(data_host);
        host_allocated = false;
      //  std::cout << "Free memory device_allocation:" << device_allocated << "\n";
    }

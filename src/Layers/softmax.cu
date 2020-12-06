@@ -81,11 +81,11 @@ void SoftMax::LayerOutput(Matrix& A) {
 Matrix& SoftMax::backprop(Matrix& dZ, float learning_rate) {
     dA.allocateCuda(A.shape);
    // std::cout<<"softmax backward\n";
+    //std::cout << " softmax backward shape.x:" << dZ.shape.x << "\n";
+    //std::cout << " softmax backward shape.y:" << dZ.shape.y << "\n";
     BackpropError(dZ);
     NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
-  //  std::cout << " softmax backward shape.x:" << dA.shape.x << "\n";
-  //  std::cout << " softmax backward shape.y:" << dA.shape.y << "\n";
-    //dZ.freeMem();
+    dZ.freeMem();
     return dA;
 }
 
