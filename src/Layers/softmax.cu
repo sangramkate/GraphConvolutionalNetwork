@@ -86,7 +86,7 @@ Matrix& SoftMax::backprop(Matrix& dZ, float learning_rate) {
     NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
     std::cout << " softmax backward shape.x:" << dA.shape.x << "\n";
     std::cout << " softmax backward shape.y:" << dA.shape.y << "\n";
-    dZ.freeMem();
+    //dZ.freeMem();
     return dA;
 }
 
