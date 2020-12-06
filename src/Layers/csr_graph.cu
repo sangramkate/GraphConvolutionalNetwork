@@ -187,19 +187,41 @@ if(alloc != cudaSuccess) {
 int* h_row_start ;
 int* h_edge_dst ;
 h_row_start = (int*)malloc((nnodes+1) * sizeof(int));
-h_edge_dst = (int*)malloc((nedges) * sizeof(int));
-
+h_edge_dst = (int*)malloc((nedges+2708) * sizeof(int));
+h_edge_dst[0] = 0;
 for(int i=0;i<(nnodes+1);i++) {
-    h_row_start[i] = int(row_start[i]);
+    h_row_start[i] = int(row_start[i]) + i;
 }
-for(int i=0;i<(nedges);i++) {
-    h_edge_dst[i] = int(edge_dst[i]);
+int deg,flag;
+for(int i=0; i< nnodes; ++i) {
+deg = int(row_start[i+1]) - int(row_start[i]);
+//printf("deg is %d row is %d\n", deg,i);
+flag = 0;
+for(int j=0;j<(deg+1);j++) {
+    //printf("edge_dst[i+j] is %d\n",edge_dst[i+j]);
+    if((edge_dst[int(row_start[i])+j] > i) && !flag) {
+        h_edge_dst[i+int(row_start[i])+j] = i;
+//          printf("h_edge_dst is %d in i index is %d\n",h_edge_dst[i+j+int(row_start[i])], (i+j+int(row_start[i])));
+        flag = 1;
+    }
+    else {
+        if(flag == 0) {
+            h_edge_dst[i+int(row_start[i])+j] = edge_dst[int(row_start[i]) + j];
+//          printf("h_edge_dst is %d index is %d\n",h_edge_dst[i+j+int(row_start[i])], (i+j+int(row_start[i])));
+        } else {
+            h_edge_dst[i+int(row_start[i])+j] = edge_dst[int(row_start[i]) + j - 1];
+//          printf("h_edge_dst is %d index is %d\n",h_edge_dst[i+j+int(row_start[i])], (i+j+int(row_start[i])));
 }
+}
+
+}
+}
+
 alloc = cudaMemcpy(d_row_start, h_row_start,((nnodes+1) * sizeof(int)), cudaMemcpyHostToDevice);
 if(alloc != cudaSuccess) {
     printf("row info memcpy failed \n");
 }
-alloc = cudaMemcpy(d_edge_dst, h_edge_dst,((nedges) * sizeof(int)), cudaMemcpyHostToDevice);
+alloc = cudaMemcpy(d_edge_dst, h_edge_dst,((nedges+nnodes) * sizeof(int)), cudaMemcpyHostToDevice);
 if(alloc != cudaSuccess) {
     printf("col info memcpy failed \n");
 }
