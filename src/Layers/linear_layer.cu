@@ -120,11 +120,6 @@ void LinearLayer::initializeBiasWithZeros() {
 }
 
 Matrix& LinearLayer::forward(Matrix& A, bool training, bool freeMatrix){
- //   std::cout << " Linear forward A.x:" << A.shape.x << "\n";
- //  std::cout << " Linear forward A.y:" << A.shape.y << "\n";
- //  std::cout << " Linear forward W.x:" << W.shape.x << "\n";
- //  std::cout << " Linear forward W.y:" << W.shape.y << "\n";
- //   std::cout << " Linear forward A address:" << A.data_device << "\n";
     assert(W.shape.y = A.shape.y);
     this->A = A;
     Shape Z_shape(A.shape.x,W.shape.x);
@@ -133,11 +128,6 @@ Matrix& LinearLayer::forward(Matrix& A, bool training, bool freeMatrix){
 //    std::cout << "Linear Layer forward\n";
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
     
-//    std::cout << " Linear forward shape.x:" << Z.shape.x << "\n";
-//    std::cout << " Linear forward shape.y:" << Z.shape.y << "\n";
-//    std::cout << " Linear forward A shape.x:" << A.shape.x << "\n";
-//    std::cout << " Linear forward A shape.y:" << A.shape.y << "\n";
-//    std::cout << " Linear forward A address:" << A.data_device << "\n";
     if(freeMatrix)
         A.freeMem();
     return Z;
@@ -166,13 +156,6 @@ Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 
 	updateWeights(dZ, learning_rate);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform weights update.");
-      //  std::cout << " Linear forward dZ.x:" << dZ.shape.x << "\n";
-      //  std::cout << " Linear forward dZ.y:" << dZ.shape.y << "\n";
-      //  std::cout << " Linear forward W.x:" << W.shape.x << "\n";
-      //  std::cout << " Linear forward W.y:" << W.shape.y << "\n";
-
-      //  std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
-      //  std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
         dZ.freeMem();
 	return dA;
 }

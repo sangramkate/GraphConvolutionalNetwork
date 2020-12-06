@@ -67,8 +67,6 @@ Matrix& SoftMax::forward(Matrix& A,bool  training, bool freeMatrix){
   //  std::cout<<"softmax forward\n";
     LayerOutput(A);
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
-  //  std::cout << " softmax forward shape.x:" << Z.shape.x << "\n";
- //   std::cout << " softmax forward shape.y:" << Z.shape.y << "\n";
     A.freeMem();
     return Z;
 }
