@@ -53,7 +53,7 @@ int main() {
         if(alloc != cudaSuccess) {
             printf("malloc for row info failed\n");
         }
-        alloc = cudaMalloc(&d_edge_dst,(5278) * sizeof(int));
+        alloc = cudaMalloc(&d_edge_dst,(5278+2708) * sizeof(int));
         if(alloc != cudaSuccess) {
             printf("malloc for col info failed\n");
         }
@@ -66,11 +66,11 @@ int main() {
         if(alloc != cudaSuccess) {
             printf("cudaMalloc failed for features matrix\n");
         }
-        alloc = cudaMalloc(&d_edge_data,nnz * sizeof(*d_edge_data));
+        alloc = cudaMalloc(&d_edge_data,(nnz+2708) * sizeof(*d_edge_data));
         if(alloc != cudaSuccess) {
             printf("malloc failed \n");
         }
-        alloc = cudaMemset(d_edge_data, 1, 5278*sizeof(float));
+        alloc = cudaMemset(d_edge_data, 1, (5278+2708)*sizeof(float));
         if(alloc != cudaSuccess) {
             printf("memset for edge data failed \n");
         }
