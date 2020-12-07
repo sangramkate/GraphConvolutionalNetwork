@@ -50,8 +50,8 @@ __global__ void linearLayerUpdateWeights(  float* dZ, float* A, float* W,
 										   int A_x_dim, int A_y_dim,
 										   float learning_rate) {
 
-	int col = blockIdx.x * blockDim.x + threadIdx.x;
-	int row = blockIdx.y * blockDim.y + threadIdx.y;
+	int row = blockIdx.x * blockDim.x + threadIdx.x;
+	int col = blockIdx.y * blockDim.y + threadIdx.y;
 
 	// A is treated as transposed
 	int W_x_dim = dZ_y_dim;
@@ -59,11 +59,11 @@ __global__ void linearLayerUpdateWeights(  float* dZ, float* A, float* W,
 
 	float dW_value = 0.0f;
 
-	if (row < W_y_dim && col < W_x_dim) {
+	if (row < W_x_dim && col < W_y_dim) {
 		for (int i = 0; i < dZ_x_dim; i++) {
 			dW_value += dZ[i * dZ_y_dim + col ] * A[row + A_y_dim * i];
 		}
-		W[col * W_y_dim + row] = W[col * W_y_dim + row] - learning_rate * (dW_value / A_y_dim);
+		W[row * W_y_dim + col] = W[row * W_y_dim + col] - learning_rate * (dW_value / A_x_dim);
 	}
 }
 
@@ -128,7 +128,10 @@ Matrix& LinearLayer::forward(Matrix& A, bool training, bool freeMatrix){
  //  std::cout << " Linear forward W.y:" << W.shape.y << "\n";
  //   std::cout << " Linear forward A address:" << A.data_device << "\n";
     assert(W.shape.y = A.shape.y);
+   // std::cout << "Linear layer forward\n";
+    //std::cout<< "Linear Layer ptr:" << A.data_device << "\n";
     this->A = A;
+    //std::cout<< "Linear Layer ptr:" << A.data_device << "\n";
     Shape Z_shape(A.shape.x,W.shape.x);
     Z.allocateCuda(Z_shape);
     computeAndStoreLayerOutput(A);
@@ -140,7 +143,7 @@ Matrix& LinearLayer::forward(Matrix& A, bool training, bool freeMatrix){
 //    std::cout << " Linear forward A shape.x:" << A.shape.x << "\n";
 //    std::cout << " Linear forward A shape.y:" << A.shape.y << "\n";
 //    std::cout << " Linear forward A address:" << A.data_device << "\n";
-    if(freeMatrix)
+    if(training == false)
         A.freeMem();
     return Z;
 	
@@ -157,6 +160,7 @@ linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device,
 }
 
 Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
+      //  std::cout << "Linear layer backword\n";
 	dA.allocateCuda(A.shape);
 
       //  std::cout << "Linear Layer backward\n";
@@ -165,17 +169,14 @@ Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 
 	updateBias(dZ, learning_rate);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform bias update.");
-
+        
 	updateWeights(dZ, learning_rate);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform weights update.");
-      //  std::cout << " Linear forward dZ.x:" << dZ.shape.x << "\n";
-      //  std::cout << " Linear forward dZ.y:" << dZ.shape.y << "\n";
-      //  std::cout << " Linear forward W.x:" << W.shape.x << "\n";
-      //  std::cout << " Linear forward W.y:" << W.shape.y << "\n";
 
       //  std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
       //  std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
         dZ.freeMem();
+        if(A.device_allocated == true) A.freeMem();
 	return dA;
 }
 

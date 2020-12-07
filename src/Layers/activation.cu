@@ -31,6 +31,7 @@ ReLUActivation::ReLUActivation(std::string name) {
 ReLUActivation::~ReLUActivation() { }
 
 Matrix& ReLUActivation::forward(Matrix& P, bool training, bool freeMatrix) {
+        //std::cout << "Relu Layer forward\n";
 	this->Z = P;
 	A.allocateCuda(Z.shape); 
 	stored_Z.allocateCuda(Z.shape);
@@ -49,6 +50,7 @@ Matrix& ReLUActivation::forward(Matrix& P, bool training, bool freeMatrix) {
 }
 
 Matrix& ReLUActivation::backprop(Matrix& dA, float learning_rate) {
+        //std::cout << "Relu Layer backward\n";
 	dZ.allocateCuda(stored_Z.shape);
 	dim3 block_size(64);
 	dim3 num_of_blocks((stored_Z.shape.y * stored_Z.shape.x + block_size.x - 1) / block_size.x);

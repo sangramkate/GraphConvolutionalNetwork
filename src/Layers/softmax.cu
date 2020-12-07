@@ -61,6 +61,7 @@ SoftMax::~SoftMax()
 { }
 
 Matrix& SoftMax::forward(Matrix& A,bool  training, bool freeMatrix){
+    //std::cout << "SoftMax forward\n";
     this->A = A;
     Shape Z_shape(A.shape.x,A.shape.y);
     Z.allocateCuda(Z_shape);
@@ -77,6 +78,7 @@ void SoftMax::LayerOutput(Matrix& A) {
 }
 
 Matrix& SoftMax::backprop(Matrix& dZ, float learning_rate) {
+    //std::cout << "SoftMax backward\n";
     dA.allocateCuda(A.shape);
    // std::cout<<"softmax backward\n";
     //std::cout << " softmax backward shape.x:" << dZ.shape.x << "\n";

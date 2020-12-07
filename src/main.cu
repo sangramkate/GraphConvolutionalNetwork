@@ -87,13 +87,13 @@ int main() {
 	std::cout << "Dataset captured!\n";
         NeuralNetwork nn;
         std::cout << "Instance of Neural Network\n";
-	//nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
+	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
         std::cout << "Added Nodeaggregator 1 layer\n";
 	nn.addLayer(new LinearLayer("linear1", Shape(100,feature_size)));
         std::cout << "Added Linear layer 1\n";
 	nn.addLayer(new ReLUActivation("relu2"));
         std::cout << "Added relu layer 1\n";
-       // nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
+        nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
         std::cout << "Added Nodeaggregator layer 2\n";
 	nn.addLayer(new LinearLayer("linear2", Shape(label_size,100)));
         std::cout << "Added Linear layer 2\n";

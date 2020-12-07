@@ -10,8 +10,10 @@ __global__ void binaryCrossEntropyCost(float* predictions, float* target, int si
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
         float partial_cost = 0.0f;
 	if (index < size) {
-                for(int i = 0 ; i < prediction_y; i++){
-		    partial_cost += target[index* prediction_y + i] * logf(predictions[index * prediction_y + i])+ (1.0f - target[index * prediction_y + i]) * logf(1.0f - predictions[index * prediction_y + i]);
+            for(int i = 0 ; i < prediction_y; i++){
+                partial_cost += target[index* prediction_y + i] * logf(predictions[index * prediction_y + i]) 
+                                                                + (1.0f - target[index * prediction_y + i]) 
+                                                                * logf(1.0f - predictions[index * prediction_y + i]);
                 }
 		atomicAdd(cost, - partial_cost / prediction_y);
 	}
