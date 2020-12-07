@@ -17,7 +17,7 @@ Data::Data(int num_nodes, size_t batch_size,int feature_size, int label_size, in
         std::cout << "feature_size :" << feature_size << "\n" ;
         std::cout << "label_size :" << label_size << "\n" ;
         
-        Shape input_shape(num_nodes,(int)(feature_size));
+        Shape input_shape(num_nodes,feature_size);
         input_features.allocateMemoryIfNotAllocated(input_shape);
         std::cout << "input_features.x:" << input_features.shape.x << "\n";
         std::cout << "input_features.y:" << input_features.shape.y << "\n";
@@ -29,14 +29,20 @@ Data::Data(int num_nodes, size_t batch_size,int feature_size, int label_size, in
 	
         for (int i = 0; i < num_nodes; i++) {
 	    for (int j = 0; j < feature_size; j++) {
-                input_features[i * (int)(feature_size/10) + j ] = feature [i * (int)(feature_size/10) + j];
+                input_features[i * feature_size + j ] = feature [i *(feature_size) + j];
+               // if(feature[i * feature_size + j]){
+               //    std::cout << "feature[" << i * (feature_size) + j << "]"<<feature[i * (feature_size) + j] << "\n"; 
+               //    std::cout << "input features[" << i * (feature_size) + j << "]" << input_features[i * (feature_size) + j] << "\n"; 
+               // }
             }
         }
+        input_features.copyHostToDevice();
 	for (int i = 0; i < num_nodes; i++) {
 	    for (int j = 0; j < (int)(label_size); j++) {
                 input_labels[i*label_size + j] = (float) label[i*label_size + j];
             }
         }
+        input_labels.copyHostToDevice();
  /*
 	for (int i = 0; i < num_training_batches+1; i++) {
 // adding the input features into a Matrix form and pushing it.
