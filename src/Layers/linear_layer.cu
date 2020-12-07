@@ -61,7 +61,7 @@ __global__ void linearLayerUpdateWeights(  float* dZ, float* A, float* W,
 
 	if (row < W_x_dim && col < W_y_dim) {
 		for (int i = 0; i < dZ_x_dim; i++) {
-			dW_value += dZ[i * dZ_y_dim + col ] * A[row + A_y_dim * i];
+		    dW_value += dZ[i * dZ_y_dim + row ] * A[col + A_y_dim * i];
 		}
 		W[row * W_y_dim + col] = W[row * W_y_dim + col] - learning_rate * (dW_value / A_x_dim);
 	}
@@ -170,11 +170,19 @@ Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 	updateBias(dZ, learning_rate);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform bias update.");
         
+        //std::cout << " A ptr: " << A.data_device << "\n";
+        //std::cout << " A last :" << A.data_device + (A.shape.x *  A.shape.y * 4) << "\n";  
+        //std::cout << " dZ ptr: " << dZ.data_device << "\n";
+        //std::cout << " dZ last :" << dZ.data_device + (dZ.shape.x *  dZ.shape.y * 4) << "\n";  
+        //std::cout << " Linear backward shape dZ.x:" << dZ.shape.x << "\n";
+        //std::cout << " Linear backward shape dZ.y:" << dZ.shape.y << "\n";
+        //std::cout << " Linear backward shape A.x:" << A.shape.x << "\n";
+        //std::cout << " Linear backward shape A.y:" << A.shape.y << "\n";
 	updateWeights(dZ, learning_rate);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform weights update.");
 
-      //  std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
-      //  std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
+        //std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
+        //std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
         dZ.freeMem();
         if(A.device_allocated == true) A.freeMem();
 	return dA;
