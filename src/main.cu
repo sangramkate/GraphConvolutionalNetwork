@@ -70,10 +70,14 @@ int main() {
         if(alloc != cudaSuccess) {
             printf("malloc failed \n");
         }
-        alloc = cudaMemset(d_edge_data, 1, (5278+2708)*sizeof(float));
+	float* h_edge_data = (float *)malloc((nnz+2708) * sizeof(float));
+        for(int i=0;i<nnz;i++)
+            h_edge_data[i] = 1.0;
+	alloc = cudaMemcpy(d_edge_data, h_edge_data, ((nnz+2708) *sizeof(float)), cudaMemcpyHostToDevice);
         if(alloc != cudaSuccess) {
-            printf("memset for edge data failed \n");
+        printf("Feature matrix memcpy failed\n");
         }
+
 //Filling up the sparse matrix info
         graph.readFromGR(gr_file , binFile , d_row_start, d_edge_dst , d_B, feature_size);
         alloc = cudaMemcpy(h_B, d_B, (2708 * 1433 *sizeof(float)), cudaMemcpyDeviceToHost);
