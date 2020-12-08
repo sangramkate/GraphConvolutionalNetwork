@@ -16,7 +16,7 @@ __global__ void binaryCrossEntropyCost(float* predictions, float* target, int si
               //                                                  * logf(1.0f - predictions[index * prediction_y + i]);
                   partial_cost += target[index* prediction_y + i] * logf(predictions[index * prediction_y + i]); 
                 }
-		atomicAdd(cost, - partial_cost / prediction_y);
+		atomicAdd(cost, - partial_cost);
 	}
 }
 
@@ -66,7 +66,7 @@ float CostFunction::cost(Matrix& predictions, Matrix& target) {
 	//float cost_value = *cost;
 	cudaFree(cost);
 
-	return ((*cost_value)/predictions.shape.x);
+	return (*cost_value);
 }
 
 Matrix& CostFunction::dCost(Matrix& predictions, Matrix& target, Matrix& dY) {

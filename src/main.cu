@@ -89,17 +89,17 @@ int main() {
         free(label);
         free(h_B);
 	std::cout << "Dataset captured!\n";
-        NeuralNetwork nn;
+        NeuralNetwork nn(0.1);
         std::cout << "Instance of Neural Network\n";
 	nn.addLayer(new NodeAggregator("nodeagg1", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
         std::cout << "Added Nodeaggregator 1 layer\n";
-	nn.addLayer(new LinearLayer("linear1", Shape(100,feature_size)));
+	nn.addLayer(new LinearLayer("linear1", Shape(10,feature_size)));
         std::cout << "Added Linear layer 1\n";
 	nn.addLayer(new ReLUActivation("relu2"));
         std::cout << "Added relu layer 1\n";
         nn.addLayer(new NodeAggregator("nodeagg2", d_edge_data, d_row_start, d_edge_dst, 2708, nnz));
         std::cout << "Added Nodeaggregator layer 2\n";
-	nn.addLayer(new LinearLayer("linear2", Shape(label_size,100)));
+	nn.addLayer(new LinearLayer("linear2", Shape(label_size,10)));
         std::cout << "Added Linear layer 2\n";
 	nn.addLayer(new ReLUActivation("relu2"));
         std::cout << "Added Relu layer 2\n"; 
@@ -138,7 +138,7 @@ int main() {
                 std::cout << "Y copied to host "<< "\n";
                 accuracy = accuracy + computeAccuracy(Y,dataset.input_labels);
 //	}
-        final_accuracy = accuracy/2708;
+        final_accuracy = accuracy;
 	// compute accuracy
         
 	std::cout << "Accuracy: " << final_accuracy << std::endl;
@@ -152,7 +152,7 @@ int main() {
 }
 
 float computeAccuracy(const Matrix& predictions, const Matrix& targets) {
-	int m = predictions.shape.x;
+	int m = predictions.shape.x * predictions.shape.y;
 	int correct_predictions = 0;
 
 	for (int i = 0; i < m; i++) {
