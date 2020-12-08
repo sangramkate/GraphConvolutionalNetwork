@@ -66,12 +66,12 @@ int main() {
         if(alloc != cudaSuccess) {
             printf("cudaMalloc failed for features matrix\n");
         }
-        alloc = cudaMalloc(&d_edge_data,(nnz+2708) * sizeof(*d_edge_data));
+        alloc = cudaMalloc(&d_edge_data,(nnz+2708) * sizeof(float));
         if(alloc != cudaSuccess) {
             printf("malloc failed \n");
         }
 	float* h_edge_data = (float *)malloc((nnz+2708) * sizeof(float));
-        for(int i=0;i<nnz;i++)
+        for(int i=0;i<(nnz+2708);i++)
             h_edge_data[i] = 1.0;
 	alloc = cudaMemcpy(d_edge_data, h_edge_data, ((nnz+2708) *sizeof(float)), cudaMemcpyHostToDevice);
         if(alloc != cudaSuccess) {
