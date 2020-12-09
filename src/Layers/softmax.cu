@@ -80,8 +80,7 @@ Matrix& SoftMax::forward(Matrix& A,bool  training, bool freeMatrix){
   //  std::cout<<"softmax forward\n";
     LayerOutput(A);
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
-    if(training == false)
-       A.freeMem();
+    A.freeMem();
     return Z;
 }
 void SoftMax::LayerOutput(Matrix& A) {
@@ -99,13 +98,11 @@ Matrix& SoftMax::backprop(Matrix& dZ, float learning_rate) {
     BackpropError(dZ);
     NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
     dZ.freeMem();
-    if(A.device_allocated)
-        A.freeMem();
-    return dZ;
+    return dA;
 }
 
 void SoftMax::BackpropError(Matrix& dZ) {
     int block_size(256);
     int num_of_blocks ((dZ.shape.x + block_size - 1) / block_size);
-    SoftMaxBackprop<<<num_of_blocks, block_size >>> ( dZ.data_device,dA.data_device,A.data_device,dZ.shape.x, dZ.shape.y);
+    SoftMaxBackprop<<<num_of_blocks, block_size >>> ( dZ.data_device,dA.data_device,Z.data_device,dZ.shape.x, dZ.shape.y);
 }
