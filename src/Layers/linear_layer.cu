@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <iostream>
 #include <random>
+#include <cublas_v2.h>
 
 #include "linear_layer.hh"
 #include "nn_exception.hh"
@@ -127,17 +128,17 @@ Matrix& LinearLayer::forward(Matrix& A, bool training, bool freeMatrix){
  //  std::cout << " Linear forward W.x:" << W.shape.x << "\n";
  //  std::cout << " Linear forward W.y:" << W.shape.y << "\n";
  //   std::cout << " Linear forward A address:" << A.data_device << "\n";
-	std::cout << "input ptr to ll " << A.data_device << "\n";
+//	std::cout << "input ptr to ll " << A.data_device << "\n";
     assert(W.shape.y = A.shape.y);
-    std::cout << "Linear layer forward\n";
+  //  std::cout << "Linear layer forward\n";
     //std::cout<< "Linear Layer ptr:" << A.data_device << "\n";
     this->A = A;
     //std::cout<< "Linear Layer ptr:" << A.data_device << "\n";
     Shape Z_shape(A.shape.x,W.shape.x);
     Z.allocateCuda(Z_shape);
-    printf("A.shape.x %d A.shape.y %d\n", A.shape.x, A.shape.y);
-    printf("W.shape.x %d W.shape.y %d\n", W.shape.x, W.shape.y);
-    printf("Z.shape.x %d Z.shape.y %d\n", Z.shape.x, Z.shape.y);
+//    printf("A.shape.x %d A.shape.y %d\n", A.shape.x, A.shape.y);
+//    printf("W.shape.x %d W.shape.y %d\n", W.shape.x, W.shape.y);
+//    printf("Z.shape.x %d Z.shape.y %d\n", Z.shape.x, Z.shape.y);
     computeAndStoreLayerOutput(A);
 //    std::cout << "Linear Layer forward\n";
     NNException::throwIfDeviceErrorOccurred("Cannot perform Linear Layer forward propagation");
@@ -155,6 +156,18 @@ Matrix& LinearLayer::forward(Matrix& A, bool training, bool freeMatrix){
 void LinearLayer::computeAndStoreLayerOutput(Matrix& A) {
 dim3 block_size(32,32);
 dim3 num_of_blocks(((Z.shape.x + block_size.x - 1) / block_size.x),((Z.shape.y + block_size.y - 1) / block_size.y) );
+
+//cublasStatus_t result1;
+//cublasHandle_t handle;
+//cublasCreate(&handle);
+//const float alp = 1;
+//const float bet = 1;
+//const float* alpha = &alp;
+//const float* beta = &bet;
+//result1 = cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, 1433, 7, 1000, alpha, A.data_device, 1433, W.data_device, 7, beta, Z.data_device,  1000);
+//if(result1 != cudaSuccess)
+//    printf("SGEMM failed\n");
+
 linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device,
 				                   A.data_device,
 						   Z.data_device,
@@ -164,12 +177,12 @@ linearLayerForward<<<num_of_blocks, block_size>>>( W.data_device,
 }
 
 Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
-        std::cout << "Linear layer backword\n";
-	dA.allocateCuda(A.shape);
+  //      std::cout << "Linear layer backword\n";
+//	dA.allocateCuda(A.shape);
 
       //  std::cout << "Linear Layer backward\n";
-	printf("ll back in dZ shape %d shape %d\n", dZ.shape.x ,dZ.shape.y);
-	computeAndStoreBackpropError(dZ);
+//	printf("ll back in dZ shape %d shape %d\n", dZ.shape.x ,dZ.shape.y);
+//	computeAndStoreBackpropError(dZ);
 	NNException::throwIfDeviceErrorOccurred("Cannot perform back propagation.");
 
 	updateBias(dZ, learning_rate);
@@ -188,10 +201,10 @@ Matrix& LinearLayer::backprop(Matrix& dZ, float learning_rate) {
 
         //std::cout << " Linear backward shape.x:" << dA.shape.x << "\n";
         //std::cout << " Linear backward shape.y:" << dA.shape.y << "\n";
-        dZ.freeMem();
-	printf("ll back out dZ shape %d shape %d\n", dA.shape.x, dA.shape.y);
-        if(A.device_allocated == true) A.freeMem();
-	return dA;
+  //      dZ.freeMem();
+	//printf("ll back out dZ shape %d shape %d\n", dA.shape.x, dA.shape.y);
+        //if(A.device_allocated == true) A.freeMem();
+	return dZ;
 }
 
 void LinearLayer::computeAndStoreBackpropError(Matrix& dZ) {

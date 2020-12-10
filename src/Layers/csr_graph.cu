@@ -190,10 +190,6 @@ if(alloc != cudaSuccess) {
 int* h_row_start ;
 int* h_edge_dst ;
 h_row_start = (int*)malloc((nnodes+1) * sizeof(int));
-//printf("ROW\n");
-//for(int i=0;i<2708;i++)
-//    printf("%d\n",h_row_start[i]);
-//printf("\nCOL\n");
 //for(int i=0;i<2708;i++)
 //    printf("%d\n",h_edge_dst[i]);
 h_edge_dst = (int*)malloc((nedges+2708) * sizeof(int));
@@ -226,8 +222,15 @@ for(int j=0;j<(deg+1);j++) {
 
 }
 }
-//printf("end\n");
-//printf("col %d\n",h_edge_dst[4132]);
+
+//printf("ROW\n");
+//for(int i=0;i<2708;i++)
+//    printf("%d\n",h_row_start[i]);
+//printf("\nCOL\n");
+//printf("col\n");
+//for(int i=0;i<6000;i++)
+//printf("col %d\n",h_edge_dst[i]);
+//printf("\n");
 //printf("col %d\n",h_edge_dst[4133]);
 //printf("col %d\n",h_edge_dst[4134]);
 alloc = cudaMemcpy(d_row_start, h_row_start,((1001) * sizeof(int)), cudaMemcpyHostToDevice);

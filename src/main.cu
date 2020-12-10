@@ -100,17 +100,12 @@ int main() {
 	} 
 	std::cout << "Dataset captured!\n";
         Data dataset(2708,100,feature_size,label_size,label,h_B);
-        free(label);
-        free(h_B);
-	Shape input_shape(1000,feature_size);
+      //  free(label);
+       // free(h_B);
+	Shape input_shape(140,feature_size);
 	Matrix input;
-	printf("HERE?\n");
         input.allocateMemoryIfNotAllocated(input_shape);
-	std::cout << "input pointer is " << input.shape.x << " and " << input.shape.y << "\n";
-	std::cout << "input ptr is " << input.data_device << "\n";
-	SpMM(d_edge_data, d_row_start, d_edge_dst, d_B, input.data_device, feature_size, 1000, 4132);
-	std::cout << "input pointer is " << input.shape.x << " and " << input.shape.y << "\n";
-	std::cout << "input ptr is " << input.data_device << "\n";
+	SpMM(d_edge_data, d_row_start, d_edge_dst, d_B, input.data_device, feature_size, 140, 756);
 	std::cout << "Dataset captured!\n";
         NeuralNetwork nn(0.001);
         //-----------------------------------------------
@@ -169,14 +164,25 @@ int main() {
         float accuracy = 0.0f;
         float final_accuracy = 0.0f;
 //	for (int batch = 0; batch < dataset.getNumOfTestBatches(); batch++) {
-		Y = nn.forward(dataset.input_features, false);
+		Y = nn.forward(input, false);
+		//Y = nn.forward(dataset.input_features, false);
                 Y.allocateHostMemory();
                 std::cout << "Y.host allocated:" << Y.host_allocated << "\n";
 		Y.copyDeviceToHost();
                 std::cout << "Y copied to host "<< "\n";
-                accuracy = accuracy + computeAccuracy(Y,dataset.input_labels);
+   //             accuracy = accuracy + computeAccuracy(Y,h_B);
 //	}
-        final_accuracy = accuracy;
+	int m = Y.shape.x * Y.shape.y;
+	int correct_predictions = 0;
+
+	for (int i = 0; i < m; i++) {
+		float prediction = Y[i] > 0.5 ? 1 : 0;
+		if (prediction == label[i]) {
+			correct_predictions++;
+		}
+	}
+	final_accuracy =  static_cast<float>(correct_predictions) / m;
+  //      final_accuracy = accuracy;
 	// compute accuracy
         
 	std::cout << "Accuracy: " << final_accuracy << std::endl;
@@ -188,9 +194,10 @@ int main() {
         cudaFree(d_edge_data);
         dataset.input_features.freeMem();
         dataset.input_labels.freeMem();
+	free(label);
 	return 0;
-}
 
+}
 float computeAccuracy(const Matrix& predictions, const Matrix& targets) {
 	int m = predictions.shape.x * predictions.shape.y;
 	int correct_predictions = 0;

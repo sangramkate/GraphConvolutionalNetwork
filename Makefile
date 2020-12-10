@@ -28,7 +28,7 @@ CUDA_LIB_DIR= -L$(CUDA_ROOT_DIR)/lib64
 CUDA_INC_DIR= -I$(CUDA_ROOT_DIR)/include 
 # CUDA linking libraries:
 
-CUDA_LINK_LIBS= -lcudart
+CUDA_LINK_LIBS= -lcudart -lcublas
 
 ##########################################################
 
@@ -87,7 +87,7 @@ clean:
 
 makeobj:
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/activation.cu -o $(OBJ_DIR)/activation.o 
-	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/linear_layer.cu -o $(OBJ_DIR)/linear_layer.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/linear_layer.cu -o $(OBJ_DIR)/linear_layer.o -lcublas 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/Layers/softmax.cu -o $(OBJ_DIR)/softmax.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/data.cu -o $(OBJ_DIR)/data.o 
 	#$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -I $(INC_DIR_CUB) -I $(INC_DIR_MGPU) -I $(INC_DIR2)  -c src/Layers/nodeaggregator.cu --extended-lambda -o $(OBJ_DIR)/nodeaggregator.o 
