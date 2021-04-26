@@ -70,7 +70,7 @@ OBJS = $(OBJ_DIR)/main.o $(OBJ_DIR)/activation.o $(OBJ_DIR)/linear_layer.o $(OBJ
 #Link c++ and CUDA compiled object files to target executable:
 
 $(EXE) : $(OBJS)
-	${NVCC} $(CC_FLAGS) $(OBJS) -g -G -lcusparse -arch=compute_61 --extended-lambda -o $@ $(CUDA_LINK_LIBS)
+	${NVCC} $(CC_FLAGS) $(OBJS) -g -G -lcusparse -arch=compute_61 --expt-extended-lambda -o $@ $(CUDA_LINK_LIBS)
 
 #  Compile main .cpp file to object files:
 # $(OBJ_DIR)/%.o : %.cpp
@@ -95,6 +95,6 @@ makeobj:
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/matrix.cu -o $(OBJ_DIR)/matrix.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/nn_utils/shape.cu -o $(OBJ_DIR)/shape.o 
 	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -c src/NeuralNetwork.cu -o $(OBJ_DIR)/NeuralNetwork.o 
-	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -I $(INC_DIR2) -I $(INC_DIR_CUB) -I $(INC_DIR_MGPU) --extended-lambda -c src/main.cu -o $(OBJ_DIR)/main.o 
+	$(NVCC) $(NVCC_FLAGS) -std=c++11  -I $(INC_DIR) -I $(INC_DIR2) -I $(INC_DIR_CUB) -I $(INC_DIR_MGPU) --expt-extended-lambda -c src/main.cu -o $(OBJ_DIR)/main.o 
 
 all: clean makeobj ${EXE}
