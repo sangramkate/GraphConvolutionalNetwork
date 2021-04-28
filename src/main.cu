@@ -18,19 +18,20 @@ float computeAccuracy(const Matrix& predictions, const Matrix& targets);
 
 int main() {
 
-        std::fstream myfile("/net/ohm/export/iss/inputs/Learning/cora-labels.txt", std::ios_base::in);
+        //std::fstream myfile("/net/ohm/export/iss/inputs/Learning/cora-labels.txt", std::ios_base::in);
+        std::fstream myfile("/home/07149/skate/GraphConvolutionalNetwork/cora/cora/cora-label.txt", std::ios_base::in);
         int* label = (int *) malloc(2708*7*sizeof(int));
         int i = 0;
-        int a;
-        myfile >> a;
-        myfile >> a;
-        while (myfile >> a)
-        {
-            label[i] = a;
-            i++;
+        std::string a;
+        while (getline(myfile, a))
+        { 
+            for(std::string::iterator it = a.begin(); it != a.end() ; ++it){
+                label[i] = (int)((char)(*it))-48;
+                i++;
+            }
         }
         myfile.close();
-
+        std::cout << i-1 << "\n";
 	srand( time(NULL) );
 
 	//CoordinatesDataset dataset(100, 21);
